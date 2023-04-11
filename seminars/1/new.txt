@@ -1,0 +1,5 @@
+find bfs for both of them
+call the the same points -> danger zones and preferably have time stamp on them.
+Move until 1 gets out of danger zone.
+
+If always on the danger zone, get out of that danger zone
