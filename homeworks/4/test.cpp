@@ -17,8 +17,8 @@ namespace my
   class string
   {
   public:
-    
-    string(const char *str = "")
+    string(): _data(nullptr), _size(0), _cap(0) {};
+    string(const char *str)
     {
       size_t len = strlen(str);
       _cap = len + 1;
@@ -29,9 +29,22 @@ namespace my
     }
      string(const my::string& other)
     {
-       _data = other._data;
-      _size = other._size;
+      // cout << "string constructor called" << endl;
+      size_t len = other._size;
+      _cap = len + 1;
+      _size = len;
+      _data = new char[_cap];
+      memcpy(_data, other._data, len);
+      _data[len] = '\0';
+    }
+    string(my::string && other) {
+      cout << "string move constructor called " << endl;
+      _data = other._data;
       _cap = other._cap;
+      _size = other._size;
+      other._data = nullptr;
+      other._cap = 0;
+      other._size = 0;
     }
    
     ~string() {
@@ -49,14 +62,37 @@ namespace my
       return _data;
     }
 
+    void initialize(const char * str) {
+      size_t len = strlen(str);
+      _cap = len + 1;
+      _size = len;
+      _data = new char[_cap];
+      memcpy(_data, str, len);
+      _data[len] = '\0';
+    }
+
     my::string & operator = (const my::string &other)
     {
       if(this == &other) return *this;
-      _data = other._data;
+      delete [] _data;
       _size = other._size;
       _cap = other._cap;
+      _data = new char[_cap];
+      memcpy(_data, other._data, _size);
+
+      _data[_size] = '\0';
+
       return *this;
     }
+    void deepcopy(const my::string & other) {
+      // cout << "deep copying -> " << other._data << endl << endl;
+      _size = other._size;
+      _cap = other._cap;
+      _data = new char[_cap];
+      memcpy(_data, other._data, _size);
+      _data[_size] = '\0';
+    }
+
     bool operator==(const my::string &other) const
     {
       if (strcmp(_data, other._data) == 0)
@@ -111,6 +147,7 @@ namespace my
     size_t _size;
 
   public:
+    int _ref;
     vector()
     {
       _arr = new T[1];
@@ -148,7 +185,7 @@ namespace my
     }
     void push_back(const T & data)
     {
-
+      // cout << "In vector push back" << endl;
       // if the number of elements is equal to the
       // capacity, that means we don't have space to
       // accommodate more elements. We need to double the
@@ -179,6 +216,18 @@ namespace my
       if (index < _size)
         return _arr[index];
     }
+
+    void deepcopy(const vector & other) {
+      // cout << "deep copying vector" << endl;
+      _arr = new T[other._cap];
+        _cap = other._cap;
+        _size = other._size;
+        for (size_t i = 0; i < _size; i++)
+        {
+            _arr[i] = other._arr[i];
+        }
+    }
+
     size_t size() const
     {
       return _size;
@@ -224,52 +273,126 @@ namespace my
     
   };
 
+  template <typename T >
+  class shared_ptr {
+    public:
+    shared_ptr(T * ptr = nullptr): data(ptr), _ref(new int(1)) {};
+
+    shared_ptr(const shared_ptr & other) {
+      data = other.data;
+      _ref = other._ref;
+      if(nullptr != other.data) {
+        increatePtr();
+      }
+    }
+    shared_ptr & operator = (const shared_ptr & other) {
+      if(this == &other) return *this;
+      clean();
+      data = other.data;
+      _ref = other._ref;
+      if(nullptr != other.data) {
+        increatePtr();
+      }
+      return *this;
+    }
+    shared_ptr(shared_ptr && other) {
+      data = other.data;
+      _ref = other._ref;
+      other.data = other._ref = nullptr;
+    }
+    ~shared_ptr() {
+      clean();
+    }
+    void increatePtr() {
+      (*_ref)++;
+    }
+    void decreasePtr() {
+      (*_ref)--;
+    }
+    
+    T & get() const {
+      return *data;
+    }
+
+    T * operator * ()
+    {
+      detach();
+      return data;
+    }
+    private:
+    T * data;
+    int * _ref;
+    
+    void clean() {
+      decreasePtr();
+      if(*_ref == 0) {
+        delete data;
+        delete _ref;
+      }
+    }
+    
+    void detach() {
+      if(*_ref == 1)
+        return;
+      clean();
+      // cout << "Detaching:  "  << endl;
+      // cout << "current vector ref: " << *_ref << endl;
+      T * tmp = new T;
+      if(data != nullptr)
+        tmp->deepcopy(*data);
+      _ref = new int(1);
+      data = tmp;
+      // cout << "detached" << endl;
+    }
+  };
 }
+
 
 class CMail
 {
 public:
-  CMail() : _from(""), _to(""), _body(""){};
-  
-  CMail(const CMail &x) : _from(x._from), _to(x._to), _body(x._body){};
+  CMail() : _from(nullptr), _to(nullptr), _body(nullptr){};
+  CMail(const CMail & src): _from(new my::string(src.getFrom())), _to(new my::string(src.getTo())), _body(new my::string(src.getBody())) {
+  }
   CMail(const char *from,
         const char *to,
-        const char *body)
-      : _from(from), _to(to), _body(body){};
+        const char *body): _from(new my::string(from)), _to(new my::string(to)), _body(new my::string(body)) {
+      };
   bool operator==(const CMail &x) const
   {
-    if (x._body != _body)
+    if (x._body.get() != _body.get())
       return false;
-    if (x._from != _from)
+    if (x._from.get() != _from.get())
       return false;
-    if (x._to != _to)
+    if (x._to.get() != _to.get())
       return false;
     return true;
   };
   friend ostream &operator<<(ostream &os,
                              const CMail &m){
       
-      os << "From: " << m._from << ", To: " << m._to << ", Body: " << m._body;
+      os << "From: " << m._from.get() << ", To: " << m._to.get()<< ", Body: " << m._body.get();
       return os;
   };
   my::string getFrom() const
   {
-    return _from;
+    return (_from.get());
   }
   my::string getTo() const
   {
-    return _to;
+    return (_to.get());
   }
   my::string getBody() const
   {
-    return _body;
+    return (_body.get());
   }
 
 private:
   // todo
-  my::string _from;
-  my::string _to;
-  my::string _body;
+  my::shared_ptr< my::string > _from;
+  my::shared_ptr< my::string > _to;
+  my::shared_ptr< my::string > _body;
+  
 };
 
 class CMailIterator
@@ -323,13 +446,16 @@ private:
   CMail ** end_ptr;
 };
 
+
+
 struct Node
   {
     Node *left;
     Node *right;
-    my::string email;
-    my::vector<CMail *> inbox;
-    my::vector<CMail *> outbox;
+    my::shared_ptr < my::string > email;
+
+    my::shared_ptr<my::vector < CMail * > > inbox;
+    my::shared_ptr<my::vector < CMail * > > outbox;
     Node(): left(nullptr), right(nullptr) {};
   };
 
@@ -338,22 +464,25 @@ class BST
   
   Node *root;
 public:
-  int _ref;
+  int * _ref;
 
-  BST(void) : root(nullptr), _ref(1) {};
-  // ~BST() {
-  //   cout << "Tree destructor: " <<  _ref << endl;
+  BST(void) : root(nullptr), _ref(new int(1)) {};
+  ~BST() {
+    // cout << "Tree destructor: " <<  *_ref << endl;
 
-  //   if(_ref == 0)
-  //     freeItems(root);
-  // }
+    // if(*_ref == 0)
+    //   freeItems(root);
+  }
   BST(const BST & other) {
-    cout << "copy constructor on tree" << endl;
+    // cout << "copy constructor on tree" << endl;
     root = other.root;
+    _ref = other._ref;
   }
   BST & operator = (const BST & other) {
-    cout << "assignment constructor on tree" << endl;
+    if(this == &other) return *this;
+    // cout << "assignment constructor on tree" << endl;
     root = other.root;
+    _ref = other._ref;
     return *this;
   }
 
@@ -367,21 +496,26 @@ public:
   }
   void Insert(CMail * x)
   {
+    // cout << "Cmail is working -> " << x->getBody() << endl;
     Node *node = root;
 
     Node *parent = nullptr;
     bool exists = false;
     bool left = false;
+    // cout << "copying string: " << endl;
     my::string sender = x->getFrom();
+    // cout << "copy complete: " << sender << endl; 
     while (node != nullptr)
     {
-      if (sender == node->email)
+      if (sender == node->email.get())
       {
-        node->outbox.push_back(x);
+        // cout << "trying to push back" << endl;
+        (*node->outbox)->push_back(x);
+        // cout << "success" << endl;
         exists = true;
         break;
       }
-      else if (sender < node->email)
+      else if (sender < node->email.get())
       {
         parent = node;
         node = node->left;
@@ -397,8 +531,11 @@ public:
 
     if (!exists) {
       node = new Node;
-      node->email = sender;
-      node->outbox.push_back(x);
+      // cout << "trying to deepcopy sender to node email" << endl;
+      *(*node->email) = sender;
+      // cout << "deepcopied" << endl;
+      (*node->outbox)->push_back(x);
+
       if (parent)
         if (left)
           parent->left = node;
@@ -417,13 +554,14 @@ public:
 
     while (node != nullptr)
     {
-      if (receiver == node->email)
+      if (receiver == node->email.get())
       {
-        node->inbox.push_back(x);
+        (*node->inbox)->push_back(x);
+
         exists = true;
         break;
       }
-      else if (receiver < node->email)
+      else if (receiver < node->email.get())
       {
         parent = node;
         node = node->left;
@@ -438,8 +576,10 @@ public:
     }
     if (!exists) {
       node = new Node;
-      node->email = receiver;
-      node->inbox.push_back(x);
+      // cout << "trying to deepcopy sender to node email" << endl;
+      *(*node->email) = receiver;
+      (*node->inbox)->push_back(x);
+
       if (parent)
         if (left)
           parent->left = node;
@@ -455,11 +595,11 @@ public:
     Node *current = root;
     while (current)
     {
-      if (current->email == email)
+      if (current->email.get() == email)
       {
         return current;
       }
-      else if (email < current->email)
+      else if (email < current->email.get())
       {
         current = current->left;
       }
@@ -488,7 +628,7 @@ public:
       cout << endl;
       for (int i = 10; i < space; i++)
           cout << " ";
-      cout << root->email << endl;
+      cout << root->email.get() << endl;
       // Process left child
       print2DUtil(root->left, space);
   }
@@ -501,7 +641,9 @@ public:
   }
 
   void populateTree(const BST * src) {
+    // cout << "populating new tree" << endl;
     root = copyTree(src->root);
+    // cout << "root: " << root << endl;
   }
    Node * copyTree(Node * root) {
     if(root == nullptr) {
@@ -524,11 +666,10 @@ public:
   }
 
   void attach() {
-    _ref++;
-    cout << "Attached to the tree: " << _ref << endl;
+    (*_ref)++;
   };
   void detach() {
-    _ref--;
+    (*_ref)--;
   };
 
 };
@@ -554,19 +695,21 @@ public:
   };
    
   ~CMailServer(void){
-    tree->detach();
-    if(tree->_ref == 0)
-      delete tree;
+    // tree->detach();
+    // if(*(tree->_ref) == 0)
+    //   delete tree;
   };
   void sendMail(const CMail &m)
   {
     CMail * mail = new CMail(m);
     BST * new_tree = new BST;
+    // cout << "creating new tree, ref: " << *(new_tree->_ref) << endl;
     new_tree->populateTree(tree);
     tree->detach();
-    if(tree->_ref == 0)
+    if(*(tree->_ref) == 0)
       delete tree;
     tree = new_tree;
+    // cout << "created tree, now inserting" << endl;
     tree->Insert(mail);
     // tree->print2D();
     // cout << "------------------------------" << endl;
@@ -577,7 +720,10 @@ public:
    
     if(el == nullptr) 
       return CMailIterator(nullptr, nullptr, nullptr);
-    return CMailIterator(el->outbox.begin(), el->outbox.begin(), el->outbox.end());
+    // for(auto it : el->outbox.get()) {
+    //   cout << *i20;
+    // }
+    return CMailIterator(el->outbox.get().begin(), el->outbox.get().begin(), el->outbox.get().end());
   };
 
   CMailIterator inbox(const char *email) const {
@@ -586,7 +732,9 @@ public:
     if(el == nullptr) 
       return CMailIterator(nullptr, nullptr, nullptr);
 
-    return CMailIterator(el->inbox.begin(), el->inbox.begin(), el->inbox.end());
+    // cout << "printing mail: " << *i20;
+    return CMailIterator(el->inbox.get().begin(), el->inbox.get().begin(), el->inbox.get().end());
+
   };
   
 private:
@@ -613,10 +761,11 @@ int main(void)
   assert(!(CMail("john", "peter", "progtest deadline") == CMail("peter", "progtest deadline", "john")));
   assert(!(CMail("john", "peter", "progtest deadline") == CMail("progtest deadline", "john", "peter")));
   assert(!(CMail("john", "peter", "progtest deadline") == CMail("progtest deadline", "peter", "john")));
-  
+  cout << "Finished comparing" << endl;
   CMailServer s0;
-  
+  cout << "Sending mail" << endl;
   s0.sendMail(CMail("john", "peter", "some important mail"));
+  cout << "Done" << endl;
   strncpy(from, "john", sizeof(from));
   strncpy(to, "thomas", sizeof(to));
   strncpy(body, "another important mail", sizeof(body));
@@ -635,7 +784,6 @@ int main(void)
   assert(matchOutput(*i0, "From: peter, To: alice, Body: PR bullshit"));
   cout << "Moving i0" << endl;
   assert(!++i0);
-  cout << "Here" << endl;
   CMailIterator i1 = s0.inbox("john");
   assert(i1 && *i1 == CMail("alice", "john", "deadline confirmation"));
   assert(matchOutput(*i1, "From: alice, To: john, Body: deadline confirmation"));

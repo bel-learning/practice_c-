@@ -24,29 +24,31 @@ namespace my
       _cap = len + 1;
       _size = len;
       _data = new char[_cap];
+      _ref = new int(1);
       memcpy(_data, str, len);
       _data[len] = '\0';
     }
      string(const my::string& other)
     {
-      _data = other._data;
+       _data = other._data;
       _size = other._size;
       _cap = other._cap;
+      _ref = other._ref;
+      increaseRef();
     }
-    string(my::string&& other)
-    {
-      _data = other._data;
-      _size = other._size;
-      _cap = other._cap;
-      other._data = nullptr;
-      other._size = 0;
-      other._cap = 0;
-    }
+   
     ~string() {
-      // delete [] _data;
-      // _data = nullptr;
-      // _size = 0;
-      // _cap = 0;
+      decreaseRef();
+      deleteData();
+    }
+    void deleteData() {
+      if(*_ref == 0) {
+        delete [] _data;
+        delete _ref;
+        _data = nullptr;
+        _size = 0;
+        _cap = 0;
+      }
     }
     size_t size() const
     {
@@ -60,9 +62,13 @@ namespace my
     my::string & operator = (const my::string &other)
     {
       if(this == &other) return *this;
+      decreaseRef();
+      deleteData();
       _data = other._data;
       _size = other._size;
       _cap = other._cap;
+      _ref = other._ref;
+      
       return *this;
     }
     bool operator==(const my::string &other) const
@@ -103,8 +109,15 @@ namespace my
     {
       return _data[index];
     }
-  private:
     
+    void increaseRef() {
+      (*_ref)++;
+    }
+    void decreaseRef() {
+      (*_ref)++;
+    }
+  private:
+    int * _ref;
     char *_data;
     size_t _size;
     size_t _cap;
@@ -117,31 +130,28 @@ namespace my
     T *_arr;
     size_t _cap;
     size_t _size;
-
+    int *_ref;
   public:
     vector()
     {
       _arr = new T[1];
       _cap = 1;
       _size = 0;
+      _ref = new int(1);
     }
     ~vector()
     {
-      delete[] _arr;
-      _size = 0;
-      _cap = 0;
-      _arr = nullptr;
+        decreaseRef();
+        deleteData();
     }
     // Copy constructor
     vector(const vector &other)
     {
-        _arr = new T[other._cap];
+        _arr = other._arr;
         _cap = other._cap;
         _size = other._size;
-        for (size_t i = 0; i < _size; i++)
-        {
-            _arr[i] = other._arr[i];
-        }
+        _ref = other._ref;
+        increaseRef();
     }
 
     // Move constructor
@@ -156,7 +166,9 @@ namespace my
     }
     void push_back(const T & data)
     {
-
+        _arr = returnDeepCopy();
+        decreaseRef();
+        _ref = new int(1);
       // if the number of elements is equal to the
       // capacity, that means we don't have space to
       // accommodate more elements. We need to double the
@@ -179,7 +191,6 @@ namespace my
 
       // Inserting data
       _arr[_size] = data;
-      _arr[_size+1] = NULL;
       _size++;
     }
     T &at(int index)
@@ -216,20 +227,47 @@ namespace my
       return (&_arr[_size]);
     }
 
+    T * returnDeepCopy() {
+        T * newArr = new T[_cap];
+        for (size_t i = 0; i < _size; i++)
+        {
+            newArr[i] = _arr[i];
+        }
+        return newArr;
+    }
+
     vector& operator=(const vector& other) {
         if (this != &other) {
+
+            decreaseRef();
+            deleteData();
             _cap = other._cap;
             _size = other._size;
-            delete[] _arr;
-            _arr = new T[_cap];
-            for (size_t i = 0; i < _size; i++) {
-                _arr[i] = other._arr[i];
-            }
+            _arr = other._arr;
+            _ref = other._ref;
+            increaseRef();
+            
         }
         return *this;
     }
 
-    
+    void decreaseRef() {
+        (*_ref)--;
+    }
+    void increaseRef() {
+        (*_ref)++;
+    }
+    int getCount() {
+        return *_ref;
+    }
+    void deleteData() {
+        if(*_ref == 0) {
+            delete [] _arr;
+            delete _ref;
+            _size = 0;
+            _cap = 0;
+        }
+    }
   };
 
 }
@@ -244,6 +282,7 @@ public:
         const char *to,
         const char *body)
       : _from(from), _to(to), _body(body){};
+  
   bool operator==(const CMail &x) const
   {
     if (x._body != _body)
@@ -283,7 +322,7 @@ private:
 class CMailIterator
 {
 public:
-  CMailIterator(CMail ** start, CMail ** current, CMail ** end): head(start), ptr(current), end_ptr(end) {};
+  CMailIterator(CMail * start, CMail * current, CMail * end): head(start), ptr(current), end_ptr(end) {};
 
   CMailIterator(const CMailIterator & other) : head(other.head), ptr(other.ptr), end_ptr(other.end_ptr) {}
 
@@ -304,10 +343,10 @@ public:
     return end_ptr == ptr;
   };
   const CMail & operator*(void) const {
-    return **ptr;
+    return *ptr;
   };
   CMail & operator * (void) {
-    return **ptr;
+    return *ptr;
   };
   CMailIterator &operator++(void){
     if(end_ptr != ptr)
@@ -326,9 +365,9 @@ public:
 
 private:
   // todo
-  CMail ** head;
-  CMail ** ptr;
-  CMail ** end_ptr;
+  CMail * head;
+  CMail * ptr;
+  CMail * end_ptr;
 };
 
 struct Node
@@ -336,8 +375,8 @@ struct Node
     Node *left;
     Node *right;
     my::string email;
-    my::vector<CMail *> inbox;
-    my::vector<CMail *> outbox;
+    my::vector<CMail> inbox;
+    my::vector<CMail> outbox;
     Node(): left(nullptr), right(nullptr) {};
   };
 
@@ -345,18 +384,34 @@ class BST
 {
   
   Node *root;
-
 public:
-  BST(void) : root(nullptr){};
-  ~BST() {
-    freeItems(root);
-  }
+  int * _ref;
+
+  BST(void) : root(nullptr), _ref(new int(1)) {};
+  // ~BST() {
+  //   cout << "Tree destructor: " <<  _ref << endl;
+
+  //   if(_ref == 0)
+  //     freeItems(root);
+  // }
   BST(const BST & other) {
+    // cout << "copy constructor on tree" << endl;
     root = other.root;
+    _ref = other._ref;
+    increaseRef();
+
   }
   BST & operator = (const BST & other) {
+    // cout << "assignment constructor on tree" << endl;
+    decreaseRef();
+    deleteData();
     root = other.root;
+    _ref = other._ref;
+    increaseRef();
     return *this;
+  }
+  ~BST() {
+    deleteData();
   }
 
   void freeItems(Node * current) {
@@ -367,14 +422,14 @@ public:
     freeItems(current->right);
     delete current;
   }
-  void Insert(CMail * x)
+  void Insert(CMail x)
   {
     Node *node = root;
 
     Node *parent = nullptr;
     bool exists = false;
     bool left = false;
-    my::string sender = x->getFrom();
+    my::string sender = x.getFrom();
     while (node != nullptr)
     {
       if (sender == node->email)
@@ -415,7 +470,7 @@ public:
     left = false;
     exists = false;
     
-    const my::string receiver = x->getTo();
+    const my::string receiver = x.getTo();
 
     while (node != nullptr)
     {
@@ -502,8 +557,8 @@ public:
       print2DUtil(root, 0);
   }
 
-  void populateTree(const BST & src) {
-    root = copyTree(src.root);
+  void populateTree(const BST * src) {
+    root = copyTree(src->root);
   }
    Node * copyTree(Node * root) {
     if(root == nullptr) {
@@ -525,6 +580,23 @@ public:
     return new_node;
   }
 
+  void increaseRef() {
+    (*_ref)++;
+  };
+  void decreaseRef() {
+    (*_ref)--;
+  };
+  void deleteData() {
+    if(*_ref == 0) {
+      // cout << "Deleting tree" << endl;
+      delete _ref;
+      freeItems(root);
+    }
+  }
+  int getCount() {
+    return *_ref;
+  }
+
 };
 
 class CMailServer
@@ -532,26 +604,29 @@ class CMailServer
 public:
   CMailServer(void) {};
   CMailServer(const CMailServer &src) {
-  tree.populateTree(src.tree);
-
+    tree = src.tree;
   };
-  CMailServer(CMailServer&& other) noexcept {
-    tree = std::move(other.tree);
-  }
+
   CMailServer &operator=(const CMailServer &src){
-    if(this != &src) {
-      tree.populateTree(src.tree);
-    }
+    if(this == &src) return *this;
+    tree = src.tree;
     return *this;
   };
    
-  ~CMailServer(void){};
+  ~CMailServer(void){
+    // tree->deleteData();
+  };
   void sendMail(const CMail &m)
   {
-    CMail * mail = new CMail(m);
+    CMail mail(m);
+    // cout << "mail copy worked: " << mail.getBody() << endl;
+    BST new_tree;
+    new_tree.populateTree(&tree);
+    
+    tree = new_tree;
     tree.Insert(mail);
-    tree.print2D();
-    cout << "------------------------------" << endl;
+    // tree->print2D();
+    // cout << "------------------------------" << endl;
   };
   CMailIterator outbox(const char *email) const {
     my::string searchFor(email);
