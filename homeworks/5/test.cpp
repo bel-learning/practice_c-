@@ -359,6 +359,7 @@ class CVATRegister
         }
      }
      vector<pair<int, bool > > keys = sortBy.key();
+     
     unmatched_list.sort([keys] (const CInvoice & a, const CInvoice & b) {
       for(size_t i = 0; i < keys.size(); i++) {
         int coefficient = 1;

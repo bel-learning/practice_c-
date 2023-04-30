@@ -19,6 +19,10 @@
         "string_view": "cpp",
         "unordered_map": "cpp",
         "chrono": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "new": "cpp",
+        "algorithm": "cpp",
+        "__config": "cpp",
+        "__nullptr": "cpp"
     }
 }
