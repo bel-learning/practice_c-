@@ -1,4 +1,6 @@
 a.out
 .vscode/
 a.out.dSYM/
-test/
+test
+.vscode
+.DS_Store
