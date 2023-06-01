@@ -48,14 +48,17 @@ class CRect
 };
 #endif /* __PROGTEST__ */
 
+// Abstract class
 class CComponent {
   public:
   CComponent() = delete;
   
   CComponent(int id, const CRect & pos): m_Id(id), m_rPos(pos), m_aPos(pos) { };
+  // Copy constructor with Absolute position to support simple deepcopying
   CComponent(int id, const CRect & rPos, const CRect & aPos): m_Id(id), m_rPos(rPos), m_aPos(aPos) { };
   
   virtual ~CComponent()  {};
+  // Every derived class has a getType to offer more flexibility
   enum class Type {
     LABEL,
     INPUT,
@@ -87,6 +90,7 @@ class CComponent {
   virtual Type getType() const = 0;
   virtual ostream & print(ostream & out, int space = 0, string prefix = "", bool horizontalLine = false) const = 0;
   virtual CComponent * createNewCopy() const = 0;
+  // Default changing abs
   virtual void changeAbsPos(const CRect & absPos) {
     m_aPos = CRect(
     m_rPos.m_X * absPos.m_W + absPos.m_X, 
@@ -99,17 +103,20 @@ class CComponent {
     if(self->m_Id == id) return self;
     return nullptr;
   };
+
+  friend ostream & operator << (ostream & out, const CComponent & comp) {
+    return comp.print(out);
+  }
   private:
   int m_Id;
   CRect m_rPos;
   CRect m_aPos;
 };
 
-ostream & operator << (ostream & out, const CComponent & comp) {
-  return comp.print(out);
-}
 
 
+// CWindow is not inherited from base class because it doesn't need to be.
+// It'll never be nested inside thus, it should go as top of hierarchy
 class CWindow 
 {
   public:
@@ -117,46 +124,40 @@ class CWindow
                                                              const string    & title,
                                                              const CRect     & absPos )
                                                              : m_Id(id), m_Title(title), m_Pos(absPos) {};
-                            CWindow ( const CWindow & other): m_Pos(other.m_Pos) {
-                              m_Id = other.m_Id;
-                              m_Title = other.m_Title;
-                              // cout << "CWindow copy constructor called" << endl;
-                              for(size_t i = 0; i < other.objects.size(); i++) {
-                                objects.push_back(other.objects[i]->createNewCopy());
-                              }
-                              // cout << "Copied things" << endl;
+                          
+                            CWindow ( const CWindow & other): m_Id(other.m_Id), m_Title(other.m_Title), m_Pos(other.m_Pos) {
+                              // Deepcopying
+                              for(const CComponent * obj : other.m_Objects) 
+                                m_Objects.push_back(obj->createNewCopy());
                             }
                             CWindow & operator = (const CWindow & other) {
                               if(this == &other) return *this;
                               m_Pos = other.m_Pos;
                               m_Id = other.m_Id;
                               m_Title = other.m_Title;
+                              // Since it's deepcopying, freeing the previous items
                               freeItems();
-                              objects.clear();
-                              // objects = other.objects;
-                               for(size_t i = 0; i < other.objects.size(); i++) {
-                                objects.push_back(other.objects[i]->createNewCopy());
-                              }
+                              m_Objects.clear();
+                               for(const CComponent * obj : other.m_Objects) 
+                                m_Objects.push_back(obj->createNewCopy());
+                              
                               return *this;
                             }
     // add
     CWindow & add(const CComponent & comp) {
       CComponent * new_comp = comp.createNewCopy();
       new_comp->changeAbsPos(m_Pos);
-      objects.push_back(new_comp);
+      m_Objects.push_back(new_comp);
       return *this;
     }
     ~CWindow() {
       freeItems();
     }
-    void freeItems() {
-      for(size_t i = 0; i < objects.size(); i++)
-        delete objects[i];   
-    }
+    
     // search
     CComponent * search(int id) {
       CComponent * obj = nullptr;
-      for(CComponent * comp : objects) {
+      for(CComponent * comp : m_Objects) {
         obj = comp->findID(id, comp);
         if(obj != nullptr) {
           return obj; 
@@ -167,43 +168,50 @@ class CWindow
     // setPosition
     void setPosition(const CRect & pos) {
       m_Pos = pos;
-      for(size_t i = 0; i < objects.size(); i++) {
-        objects[i]->changeAbsPos(m_Pos);
+      for(CComponent * obj : m_Objects) {
+        obj->changeAbsPos(m_Pos);
       }
     }
-    friend ostream & operator << (ostream & out, const CWindow & window);
+    friend ostream & operator << (ostream & out, const CWindow & window) {
+    // It's just the printing patterns. Prefix contains what prefix is and we always print that.
+    // The rest are conditional statements of printing | or +- and more.
+      out << "[" << window.m_Id << "]" << " Window \"" << window.m_Title << "\" " << window.m_Pos << "\n";
+      string prefix;
+      for(size_t i = 0; i < window.m_Objects.size(); i++) {
+        CComponent * obj = window.m_Objects[i];
+        if(obj->getType() == CComponent::Type::COMBOBOX || obj->getType() == CComponent::Type::PANEL)  {
+          if(i == window.m_Objects.size() - 1) {
+            obj->print(out, 1, prefix, false);
+            continue;
+          }
+          else {
+            obj->print(out, 1, prefix, true);
+            continue;
+          }
+        }
+          
+        obj->print(out, 1, prefix, false);
+      }
+      return out;
+    }
 
   private:
     int m_Id;
     string m_Title;
     CRect m_Pos;
-    vector<CComponent *> objects;
+    vector<CComponent *> m_Objects;
+
+    
+    void freeItems() {
+      for(CComponent * obj : m_Objects)
+        delete obj;   
+    }
 };
 // The toppest in the hierarchy deserves its definition wide and open.
-ostream & operator << (ostream & out, const CWindow & window) {
-  out << "[" << window.m_Id << "]" << " Window \"" << window.m_Title << "\" " << window.m_Pos << "\n";
-  string prefix;
-  for(size_t i = 0; i < window.objects.size(); i++) {
-    CComponent * obj = window.objects[i];
-    if(obj->getType() == CComponent::Type::COMBOBOX || obj->getType() == CComponent::Type::PANEL)  {
-      if(i == window.objects.size() - 1) {
-        obj->print(out, 1, prefix, false);
-        continue;
-      }
-      else {
-        obj->print(out, 1, prefix, true);
-        continue;
-      }
-    }
-      
-    obj->print(out, 1, prefix, false);
-  }
-  return out;
-}
+
 
 class CPanel : public CComponent
 {
-  vector<CComponent *> m_Objects;
   public:
                              CPanel                        ( int               id,
                                                              const CRect     & relPos )
@@ -215,32 +223,26 @@ class CPanel : public CComponent
                         : CComponent(id, relPos, absPos) {};
                            
     ~CPanel() {
-      for(CComponent * obj : m_Objects) {
+      for(CComponent * obj : m_Objects)
         delete obj;
-      }
     }
     // add
     CComponent * createNewCopy() const override {
       CPanel * newPanel = new CPanel(this->getId(), this->getRPos(), this->getAPos());
-      // cout << " Creating new copy of panel " << endl;
-      for(CComponent * obj : m_Objects) {
+      for(CComponent * obj : m_Objects) 
         newPanel->m_Objects.push_back(obj->createNewCopy());
-      }
-      // cout << "Copied the objects inside panel" << endl;
       return newPanel;
     }
     
     CPanel & add(const CComponent & comp) {
-      
       CComponent * new_comp = comp.createNewCopy();
       new_comp->changeAbsPos(this->getAPos());
-      // if(new_comp->getType() == CComponent::Type::PANEL) {
-      // }
-
       m_Objects.push_back(new_comp);
       return *this;
     }
     ostream & print(ostream & out, int space = 0, string prefix = "", bool horizontalLine = false) const override {
+      // It's just the printing patterns. Prefix contains what prefix is and we always print that.
+      // The rest are conditional statements of printing | or +- and more.
       out << prefix << (space != 0 ? "+- " : "") << "[" << this->getId() << "]" << " Panel " << this->getAPos() << "\n";
       int len= static_cast<int> (prefix.size());
       for(int j = 0; j < space * 3 - len; j++) {
@@ -296,6 +298,10 @@ class CPanel : public CComponent
       return nullptr;
     };
 
+
+  private:
+    vector<CComponent *> m_Objects;
+
 };
 
 
@@ -323,8 +329,6 @@ class CButton : public CComponent
     Type getType() const override {
       return CComponent::Type::BUTTON;
     }
-    
-
 
   private:
     string m_Name;
@@ -418,12 +422,10 @@ class CComboBox : public CComponent
     }
     // getSelected
     CComponent * createNewCopy() const override {
-      // cout << "Creating new copy of Combobox, with selected = 0" << endl;
       return new CComboBox(this->getId(), this->getRPos(), this->getAPos(), m_List, m_Selected);
     }
     
     ostream & print(ostream & out, int space = 0, string prefix = "",  bool horizontalLine = false) const override {
-      // out << "+-  [" << this->getId() << "]" << " Button \"" << m_Label << "\" " << this->changeAbsPos(absPos) << "\n";
       out << prefix << (space != 0 ? "+- " : "") << "[" << this->getId() << "]" << " ComboBox " << this->getAPos() << "\n";
         for(size_t i = 0; i < m_List.size(); i++) {
           out << prefix;
@@ -450,15 +452,12 @@ class CComboBox : public CComponent
 };
 
 
-// output operators
-
 #ifndef __PROGTEST__
 template <typename T_>
 string toString ( const T_ & x )
 {
   ostringstream oss;
   oss << x;
-  // cout << oss.str();
   return oss . str ();
 }
 

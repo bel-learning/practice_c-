@@ -4,3 +4,4 @@ a.out.dSYM/
 test
 .vscode
 .DS_Store
+tmp/

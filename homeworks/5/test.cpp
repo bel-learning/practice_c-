@@ -74,7 +74,7 @@ class CDate
 };
 #endif /* __PROGTEST__ */
 
-
+// Util functions
 std::string stripWhiteSpace(const std::string& str) {
     // Find the first non-whitespace character.
     auto first = std::find_if(str.begin(), str.end(), [](int c) {
@@ -112,16 +112,16 @@ string to_lower(const string & name) {
 }
 
 string normalize(const string & name)  {
-    // cout << "Normalize: " << endl;
     string normal = name;
     std::transform(normal.begin(), normal.end(), normal.begin(),
       [](unsigned char c){return std::tolower(c);});
 
     normal = stripWhiteSpace(normal);
-    // cout << "orig: " << name << " normal: >" << normal  << "<" << endl;
-    // cout << "End: " << endl;
+
     return normal;
   }
+
+
 
 class CInvoice
 {
@@ -172,7 +172,6 @@ class CInvoice
     string _buyer;
     unsigned int _amount;
     double _vat;
-    // string _hashable;
 };
 
 template<typename T1>
@@ -272,13 +271,14 @@ class CVATRegister
       if(n_buyer == n_seller) return false;
       if(!companyExists(n_buyer)) return false;
       if(!companyExists(n_seller)) return false;
-     order++;
+// Creating new CInvoice that has more attributes.
+
      CInvoice copy_invoice(x);
      copy_invoice.changeBuyer(storage[n_buyer].original_name());
      copy_invoice.changeSeller(storage[n_seller].original_name());
+     order++;
 
      copy_invoice._order = order;
-    //  copy_invoice.makeHashable();
       if(issueExists(copy_invoice, n_buyer)) return false;
       if(issueExists(copy_invoice, n_seller)) return false;
 
@@ -295,12 +295,14 @@ class CVATRegister
       if(n_buyer == n_seller) return false;
       if(!companyExists(n_buyer)) return false;
       if(!companyExists(n_seller)) return false;
+
+// Creating new CInvoice that has more attributes.
       CInvoice copy_invoice(x);
       copy_invoice.changeBuyer(storage[n_buyer].original_name());
       copy_invoice.changeSeller(storage[n_seller].original_name());
       order++;
       copy_invoice._order = order;
-      // copy_invoice.makeHashable();
+
         if(acceptExists(copy_invoice, n_buyer)) return false;
         if(acceptExists(copy_invoice, n_seller)) return false;
 
@@ -314,10 +316,13 @@ class CVATRegister
       if(n_buyer == n_seller) return false;
       if(!companyExists(n_buyer)) return false;
       if(!companyExists(n_seller)) return false;
+
+// Creating new CInvoice that has more attributes.
       CInvoice copy_invoice(x);
       copy_invoice.changeBuyer(storage[n_buyer].original_name());
       copy_invoice.changeSeller(storage[n_seller].original_name());
-    //  copy_invoice.makeHashable();
+
+
      if(!issueExists(copy_invoice, n_buyer)) return false;
       if(!issueExists(copy_invoice, n_seller)) return false;
 
@@ -331,11 +336,13 @@ class CVATRegister
       if(n_buyer == n_seller) return false;
       if(!companyExists(n_buyer)) return false;
       if(!companyExists(n_seller)) return false;
+
+// Creating new CInvoice that has more attributes.
       CInvoice copy_invoice(x);
-     copy_invoice.changeBuyer(storage[n_buyer].original_name());
-     copy_invoice.changeSeller(storage[n_seller].original_name());
-    //  copy_invoice.makeHashable();
-     if(!acceptExists(copy_invoice, n_buyer)) return false;
+       copy_invoice.changeBuyer(storage[n_buyer].original_name());
+       copy_invoice.changeSeller(storage[n_seller].original_name());
+
+      if(!acceptExists(copy_invoice, n_buyer)) return false;
       if(!acceptExists(copy_invoice, n_seller)) return false;
 
       storage[n_buyer].accepted().erase(copy_invoice);
@@ -344,22 +351,22 @@ class CVATRegister
     };
     list<CInvoice>           unmatched                     ( const string    & company,
                                                              const CSortOpt  & sortBy ) const {
-    // vector<CInvoice> arr;
       string n_company = normalize(company); 
-      if(storage.find(n_company) == storage.end()) return list<CInvoice>();
+      if(!companyExists(n_company)) return list<CInvoice>();
       list<CInvoice> unmatched_list;
-     for(auto & it : storage.at(n_company).issued()) {
-        if(!acceptExists(it.first, n_company)) {
-          unmatched_list.push_back(it.first);
-        }
-     }
-     for(auto & it : storage.at(n_company).accepted()) {
-        if(!issueExists(it.first, n_company)) {
-          unmatched_list.push_back(it.first);
-        }
-     }
-     vector<pair<int, bool > > keys = sortBy.key();
+      for(auto & it : storage.at(n_company).issued()) {
+          if(!acceptExists(it.first, n_company)) {
+            unmatched_list.push_back(it.first);
+          }
+      }
+      for(auto & it : storage.at(n_company).accepted()) {
+          if(!issueExists(it.first, n_company)) {
+            unmatched_list.push_back(it.first);
+          }
+      }
+      vector<pair<int, bool > > keys = sortBy.key();
      
+    //  Sorting based on different keys
     unmatched_list.sort([keys] (const CInvoice & a, const CInvoice & b) {
       for(size_t i = 0; i < keys.size(); i++) {
         int coefficient = 1;
@@ -400,7 +407,6 @@ class CVATRegister
     
       return (a._order < b._order);
     });
-      // cout << "----------------" << endl << "iterating through " << endl;
 
   
      return unmatched_list;
@@ -408,30 +414,30 @@ class CVATRegister
     // 
     
 
+    
+  private:
+    unordered_map<string, Company > storage;
+    int order;
+
+// Util functions
     bool companyExists(const string & name) const {
       if(storage.find(name) != storage.end()) return true;
       return false;
     }
-    Company & getCompany(const string & name) {
+    const Company & getCompany(const string & name) const {
       string normalized_name = normalize(name);
       return storage.at(normalized_name);
     }
     bool issueExists(const CInvoice & n_invoice, const string & n_company) const {
       if(!companyExists(n_company)) return false;
       if(storage.at(n_company).issued().find(n_invoice) == storage.at(n_company).issued().end()) return false;
-      // if(storage.at(n_company).issued().at(n_invoice) == 0) return false;
       return true;
     }
     bool acceptExists(const CInvoice & n_invoice, const string & n_company) const {
       if(!companyExists(n_company)) return false;
       if(storage.at(n_company).accepted().find(n_invoice) == storage.at(n_company).issued().end()) return false;
-      // if(storage.at(n_company).accepted().at(n_invoice) == 0) return false;
       return true;
     }
-  private:
-    unordered_map<string, Company > storage;
-    int order;
-    // todo
 };
 
 #ifndef __PROGTEST__
