@@ -12,6 +12,26 @@ Datetime getCurrentDateTime() {
     return Datetime(tmTime);
 };
 
+std::string getDayOfWeek(int index) {
+    switch (index) {
+        case 0:
+            return "Sunday";
+        case 1:
+            return "Monday";
+        case 2:
+            return "Tuesday";
+        case 3:
+            return "Wednesday";
+        case 4:
+            return "Thursday";
+        case 5:
+            return "Friday";
+        case 6:
+            return "Saturday";
+        default:
+            return "Invalid day";
+    }
+}
 
 int dayIndexInWeek(const Datetime & time) 
 { 
@@ -33,10 +53,10 @@ std::string getMonthName (int monthNum) {
     return (months[monthNum-1]); 
 }
 
-int getDaysInMonth(const Datetime & time) {
+int getDaysInMonth(const Datetime & date) {
     int numDays = 31;
-    int month = time.month;
-    int year = time.year;
+    int month = date.month;
+    int year = date.year;
     if (month == 4 || month == 6 || month == 9 || month == 11)
         numDays = 30;  // April, June, September, November
 
@@ -49,9 +69,8 @@ int getDaysInMonth(const Datetime & time) {
     return numDays;
 }   
 
-void writeToDebug(const string & out) {
-    ofstream file("../debugger.txt");
-
+void writeToDebug(const string & out, ofstream & file) {
+    // ofstream file("../debugger.txt");
     file << out << endl;
     return;
 }
@@ -86,8 +105,69 @@ Datetime decreaseMonth(Datetime & date) {
         date.month--;
     return date;
 }
+Datetime findYesterday(const Datetime& dt) {
+    int year = dt.year;
+    int month = dt.month;
+    int day = dt.day;
+    day--;
+    if (day == 0) {
+        // Decrease the month by 1
+        month--;
 
-Datetime calculateEndtime(const Datetime & start, int durationMinute) {
+        // Check if the month becomes zero
+        if (month == 0) {
+            // Decrease the year by 1
+            year--;
+
+            // Set the month to December
+            month = 12;
+        }
+
+        // Get the number of days in the previous month
+        int daysInPreviousMonth = getDaysInMonth(Datetime(year, month, day,0,0,0));
+
+        // Set the day to the last day of the previous month
+        day = daysInPreviousMonth;
+    }
+
+    // Create a new Datetime object with the updated values
+    Datetime yesterday(year, month, day, dt.hour, dt.minute, dt.second);
+    return yesterday;
+}
+Datetime findTomorrow(const Datetime& dt) {
+    int year = dt.year;
+    int month = dt.month;
+    int day = dt.day;
+
+    // Get the number of days in the current month
+    int daysInCurrentMonth = getDaysInMonth(Datetime(year, month, day,0,0,0));
+
+    // Increase the day by 1
+    day++;
+
+    // Check if the day exceeds the number of days in the current month
+    if (day > daysInCurrentMonth) {
+        // Reset the day to 1
+        day = 1;
+
+        // Increase the month by 1
+        month++;
+
+        // Check if the month exceeds 12
+        if (month > 12) {
+            // Reset the month to 1
+            month = 1;
+
+            // Increase the year by 1
+            year++;
+        }
+    }
+    // Create a new Datetime object with the updated values
+    Datetime tomorrow(year, month, day, dt.hour, dt.minute, dt.second);
+    return tomorrow;
+}
+
+Datetime calculateEndtime(const Datetime & start, long long durationMinute) {
     long long startInSeconds = start.toSeconds();
     long long durationInSeconds = durationMinute * 60;
     return secondsToDatetime(startInSeconds + durationInSeconds);
@@ -129,4 +209,44 @@ Event::Repeat stringToRepeat(const string & formatted) {
     if(formatted == "daily") return Event::Repeat::Daily;
     if(formatted == "yearly") return Event::Repeat::Yearly;
     return Event::Repeat::Yearly;
+}
+
+Datetime startOfCurrentWeek(const Datetime & dt) {
+    Datetime current = dt;
+    Datetime start(current);
+    start.hour = 0;
+    start.minute = 0;
+    start.second = 0;
+
+    // If not monday
+    while (dayIndexInWeek(start) != 1) {
+        start = findYesterday(start);
+    }
+
+    return start;
+}
+Datetime endOfCurrentWeek(const Datetime & dt) {
+    Datetime current = dt;
+    current = startOfNextWeek(current);
+    current = findYesterday(current);
+    current.hour = 23;
+    current.minute = 59;
+    current.second = 59;
+    return current;
+}
+
+
+
+Datetime startOfNextWeek(const Datetime & dt) {
+    Datetime res = startOfCurrentWeek(dt);
+    res = findTomorrow(res);
+    while(dayIndexInWeek(res) != 1) {
+        res = findTomorrow(res);
+    }
+    return res;
+}
+Datetime startOfPreviosWeek(const Datetime & dt) {
+    Datetime res = startOfCurrentWeek(dt);
+    res = findYesterday(res);
+    return res;
 }

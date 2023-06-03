@@ -22,11 +22,15 @@ class Event {
     virtual void display() = 0;
     virtual bool insideInterval(const Datetime & start, const Datetime & end) const = 0;
     virtual Event * makeCopy() const = 0;
-    virtual string toString() const = 0;
+    virtual string toHours() const = 0;
+    virtual string toDays() const = 0;
+
+
+    virtual bool isLowerThan(const Event * e) const = 0;
+    virtual Datetime getCompareDate() const = 0;
     const string & getTitle() const;
     const string & getDescription() const;
     const Repeat & getRepeat() const;
-
 
     private:
     string m_Title;
@@ -46,8 +50,13 @@ class NormalEvent : public Event {
 
     Event * makeCopy() const override;
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
-    string toString() const override;
+    string toHours() const override;
+    string toDays() const override;
+
     void display() override;
+    bool isLowerThan(const Event * e) const override;
+    Datetime getCompareDate() const override;
+
     private:
     string m_Location;
     Datetime m_Start;

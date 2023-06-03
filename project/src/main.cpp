@@ -25,7 +25,13 @@ void addDummyData(EventDictionary * storage) {
     storage->addEvent(new NormalEvent("Meeting1", "...", Event::Repeat::Monthly, "nowhere", start, end));
     start.hour = 13;
     end.hour = 14;
-    storage->addEvent(new NormalEvent("Meeting2", "...", Event::Repeat::Monthly, "nowhere", start, end));
+    storage->addEvent(new NormalEvent("Study sap", "...", Event::Repeat::Monthly, "nowhere", start, end));
+
+    start.day = 4;
+    start.hour = 14;
+    end.day = 4;
+    end.hour = 15;
+    storage->addEvent(new NormalEvent("Study pa2", "...", Event::Repeat::Monthly, "nowhere", start, end));
 
 }
 
@@ -34,8 +40,8 @@ int main() {
     EventDictionary storage;
     addDummyData(&storage);
     MainState state;
-    int row = 20;
-    int col = 80;
+    // int row = 20;
+    // int col = 80;
     WINDOW * mainWin;
     if ( (mainWin = initscr()) == NULL ) {
         fprintf(stderr, "Error initialising ncurses.\n");
@@ -80,17 +86,23 @@ int main() {
                 box(mainWin, 0,0);
                 if(choice == Menu::SMonthlyCalendar)
                     cal = new MonthlyCalendar();
+                if(choice == Menu::SWeeklyCalendar)
+                    cal = new WeeklyCalendar();
+                if(choice == Menu::SDailyCalendar)
+                    cal = new DailyCalendar();
                 // 
                 cal->referDictionary(&storage);
                 res = GetCalendarView(choice, mainWin, cal);
                 state = MainState::MenuView;
+                if(cal != nullptr)
+                    delete cal;
                 break;
 
             case MainState::EventView:
                 refresh();
                 clear();
                 box(mainWin, 0,0);
-                res = AddEventView(mainWin, cal, storage);
+                res = AddEventView(mainWin, cal, &storage);
                 state = MainState::MenuView;
                 break;
 
@@ -99,6 +111,7 @@ int main() {
         if(choice == Menu::SQuit)
             break;
     }
+    // writeToDebug(res);
     clear();
     delwin(mainWin);
     endwin();

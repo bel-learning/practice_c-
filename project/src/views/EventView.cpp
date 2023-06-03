@@ -47,7 +47,7 @@ string promptInput(WINDOW * win, string question) {
 }
 // Event * createNewEven
 
-int AddEventView(WINDOW * main, Calendar * cal, EventDictionary & storage) {
+int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
 
     int MAX_ROWS, MAX_COLS;
     getmaxyx(main, MAX_ROWS, MAX_COLS);
@@ -78,8 +78,6 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary & storage) {
 
         return 0;
     }
-
-   
     
     
     string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly):");
@@ -96,7 +94,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary & storage) {
             delwin(bWindow);
             return 0;
         }
-        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm):");
+        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
         if(timeStart == "exit") {
             clear();
             delwin(bWindow);
@@ -109,10 +107,8 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary & storage) {
             return 0;
         }
         Datetime start(timeStart);
-        event = new NormalEvent(title, description, repeat, location, start, calculateEndtime(start, static_cast<long>(stoi(duration))));
-        
-        storage.addEvent(event);
-        
+        event = new NormalEvent(title, description, repeat, location, start, calculateEndtime(start, static_cast<long long>(stoi(duration))));
+        storage->addEvent(event);
     }
     
 

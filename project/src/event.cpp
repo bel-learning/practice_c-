@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include "util.h"
 
 using namespace std;
 
@@ -55,13 +56,15 @@ bool NormalEvent::insideInterval(const Datetime & start, const Datetime & end) c
     return false;
 }
 
+
+
 void NormalEvent::display() {};
 
 Event * NormalEvent::makeCopy() const {
     return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, m_Start, m_End);
 };
 
-string NormalEvent::toString() const {
+string NormalEvent::toHours() const {
     // str.append()
     stringstream ss;
     ss << std::setfill('0');  // Set fill character to '0' if the hour/minute is single digit
@@ -72,10 +75,28 @@ string NormalEvent::toString() const {
     ss << " " << getTitle();
     return ss.str();
 };
+string NormalEvent::toDays() const {
+    // str.append()
+    stringstream ss;
+    ss << std::setfill('0');  // Set fill character to '0' if the hour/minute is single digit
+    ss << std::setw(2) << m_Start.day << " ";
+    ss.clear(); 
+    ss << getMonthName(m_Start.month);
+    ss << " : " << getTitle();
+    return ss.str();
+};
 
-// bool NormalEvent::insideInterval(const Datetime & start, const Datetime & end) const {
-//     return true;
-// }
+
+
+bool NormalEvent::isLowerThan(const Event * e) const {
+    Datetime selfDate = this->getCompareDate();
+    Datetime otherDate = e->getCompareDate();
+    return selfDate < otherDate;
+};
+Datetime NormalEvent::getCompareDate() const {
+    return m_Start;
+};
+
 
 
 // void NormalEvent::display() {};

@@ -37,8 +37,9 @@ class Calendar {
         Calendar(const Datetime & time) ;
         Calendar & operator = (const Calendar & cal);
         virtual ~Calendar();
-        virtual const std::vector<Event *> getEvents(const Datetime & start) const = 0;
-        virtual void print(WINDOW * win, const Datetime & date, int selected) const;
+        virtual const std::vector<Event *> getEvents(const Datetime & start, bool showAll) const = 0;
+        virtual void print(WINDOW * win, const Datetime & date, int selected) const = 0;
+        virtual void displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll = false) const = 0;
         // bool addEvent(const Event * e);
         void referDictionary(EventDictionary * ed) {
             m_Dictionary = ed;
@@ -56,8 +57,9 @@ class WeeklyCalendar : public Calendar {
     public:
         WeeklyCalendar();
         ~WeeklyCalendar();
-        const std::vector<Event *> getEvents(const Datetime & start) const override;
+        const std::vector<Event *> getEvents(const Datetime & start, bool showAll) const override;
         void display(WINDOW * win, const Datetime & date, int active);
+        void displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll = false) const override;
         
         void print(WINDOW * win,const Datetime & date, int selected) const override;
     private:
@@ -70,8 +72,9 @@ class DailyCalendar : public Calendar {
 
         void print(WINDOW * win,const Datetime & date, int selected) const override;
         void display(WINDOW * win, const Datetime & date, int active);
+        void displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll = false) const override;
         
-        const std::vector<Event *> getEvents(const Datetime & start) const override;
+        const std::vector<Event *> getEvents(const Datetime & start, bool showAll) const override;
 
 
     private:
@@ -86,9 +89,10 @@ class MonthlyCalendar : public Calendar {
 
         void print(WINDOW * win,const Datetime & date, int selected) const override;
         void display(WINDOW * win, const Datetime & date, int selected) const;
+        void displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll = false) const override;
 
     
-        const std::vector<Event *> getEvents(const Datetime & start) const override;
+        const std::vector<Event *> getEvents(const Datetime & start, bool showAll) const override;
 
     private:
 };

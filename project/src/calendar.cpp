@@ -20,8 +20,6 @@ Calendar::~Calendar() {}
 // }
 // const std::vector<Event *> Calendar::getEvents(const Datetime & start) const 
 
-void Calendar::print(WINDOW * win, const Datetime & date, int selected) const {
-}   
 
 
 DailyCalendar::DailyCalendar() : Calendar() {};
@@ -29,10 +27,38 @@ DailyCalendar::~DailyCalendar() {};
 
 
 void DailyCalendar::print(WINDOW * win, const Datetime & date, int selected) const {
+    wclear(win);
+    int MAX_COLS = getmaxx(win);
 
+    wattron(win, A_REVERSE);
+    mvwprintw(win, 2 , MAX_COLS / 2 - 10, "<Daily Calendar>");
+    wattroff(win, A_REVERSE);
+
+    mvwprintw(win, 2 + 2, MAX_COLS / 2 - 10, "Today is %d %s", date.day, getMonthName(date.month).c_str());
+
+    wrefresh(win);
+}
+void DailyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll) const {
+    wclear(win);
+    int middle = getmaxx(win) / 2;
+    wattron(win, A_BOLD);
+    mvwprintw(win, 2, middle-6, "Events\n\n");
+    wattroff(win, A_BOLD);
+
+    if(events.size() == 0) {
+        wprintw(win, "No events\n");
+    }
+    for(const Event * e : events) {
+        wprintw(win, "%s\n", e->toHours().c_str());
+        // wprintw(win, "%s\n", e->ge);
+        wattron(win, A_LOW);
+        wprintw(win, "%s\n", e->getDescription().c_str());
+        wattroff(win, A_LOW);
+    }
+    wrefresh(win);
 }
 
-const vector<Event * > DailyCalendar::getEvents(const Datetime & start) const {
+const vector<Event * > DailyCalendar::getEvents(const Datetime & start, bool showAll) const {
     vector<Event *> dailyEvents;
     // Getting start of day
     Datetime startDate(start);
@@ -41,7 +67,6 @@ const vector<Event * > DailyCalendar::getEvents(const Datetime & start) const {
     startDate.second = 0;
 
     // Getting end of day
-    int lastDay = getDaysInMonth(start);
     Datetime endDate(start);
     endDate.hour = 23;
     endDate.minute = 59;    
@@ -52,6 +77,19 @@ const vector<Event * > DailyCalendar::getEvents(const Datetime & start) const {
             dailyEvents.push_back(e->makeCopy());
         }
     }
+    vector<Event *> firstFifteenEvents;
+    size_t len = dailyEvents.size();
+
+    if(len > 15)
+        len = 15;
+
+    for(size_t i = 0; i < len; i++) {
+        firstFifteenEvents.push_back(dailyEvents[i]->makeCopy());
+    }
+    for(Event * event : dailyEvents) {
+        delete event;  
+    }
+    return firstFifteenEvents;
     return dailyEvents;
 }
 
@@ -62,10 +100,118 @@ WeeklyCalendar::~WeeklyCalendar() {};
 
 
 void WeeklyCalendar::print(WINDOW * win, const Datetime & date, int selected) const {
+    wclear(win);
+    Datetime start = startOfCurrentWeek(date);
+    Datetime end = start;
+    // Six days from monday will be sunday hihi
+    for(int i = 0; i < 6; i++)
+        end = findTomorrow(end);
+
+    int MAX_ROWS, MAX_COLS;
+    getmaxyx(win, MAX_ROWS, MAX_COLS);
+
+    int paddingTop = 2;
+
+    wattron(win, A_BOLD);
+    mvwprintw(win, 2 , MAX_COLS / 2 - 10, "Weekly Calendar");
+    wattroff(win, A_BOLD);
+
+    if (selected == 0) {
+        wattron(win, A_REVERSE);
+        mvwprintw(win, 2 + paddingTop, MAX_COLS/2 - 11, "<%02d %s-%02d %s>\n", start.day, getMonthName(start.month).c_str(), end.day, getMonthName(end.month).c_str());
+        wattroff(win, A_REVERSE);
+    }
+    else {
+        mvwprintw(win, 2 + paddingTop, MAX_COLS/2 - 10, "%02d %s-%02d %s\n", start.day, getMonthName(start.month).c_str(), end.day, getMonthName(end.month).c_str());
+    }
+    int iRows = 1;
+    int weekDayIndex = 0;
+    paddingTop += 1;
+    Datetime iterateDate(start);
+    for(int i = 1; i <= 7; i++) {
+        weekDayIndex++;
+        if(weekDayIndex > 6)
+            weekDayIndex = 0;
+        if(selected == i)
+            wattron(win, A_REVERSE);
+        if(2 + paddingTop + iRows * i >= MAX_ROWS-1)
+            break;
+        mvwprintw(win, 2 + paddingTop + iRows * i, MAX_COLS/2 - 10, "%02d %s\n", iterateDate.day ,getDayOfWeek(weekDayIndex).c_str());
+        iterateDate = findTomorrow(iterateDate);
+        wattroff(win, A_REVERSE);
+    }
+    wattroff(win, A_REVERSE);
+
+    wrefresh(win);
 
 }
-const vector<Event * > WeeklyCalendar::getEvents(const Datetime & start) const {
 
+void WeeklyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll) const {
+    wclear(win);
+    int middle = getmaxx(win) / 2;
+    wattron(win, A_BOLD);
+    mvwprintw(win, 2, middle-6, "Events\n\n");
+    wattroff(win, A_BOLD);
+
+    if(events.size() == 0) {
+        wprintw(win, "No events\n");
+    }
+    for(const Event * e : events) {
+        if(showAll)
+            wprintw(win, "%s\n", e->toDays().c_str());
+        else    
+            wprintw(win, "%s\n", e->toHours().c_str());
+
+        // wprintw(win, "%s\n", e->ge);
+    }
+    wrefresh(win);
+}
+
+
+const vector<Event * > WeeklyCalendar::getEvents(const Datetime & start, bool showAll) const {
+    // Special case to notify get everything in that week limited to 15 tho.
+    vector<Event *> eventsInInterval;
+
+    Datetime startDate(start);
+    Datetime endDate(start);
+
+    // Special case to notify get everything in that week limited to 15 tho.
+    if(showAll) {
+        // Get all the events in the month
+        startDate = startOfCurrentWeek(start);
+        endDate = endOfCurrentWeek(start);
+    }
+    // Getting start of the first day
+    startDate.hour = 0;
+    startDate.minute = 0;
+    startDate.second = 0;
+
+    // Getting end of day the last day
+    endDate.hour = 23;
+    endDate.minute = 59;
+    endDate.second = 59;    
+
+    for(const Event * e : m_Dictionary->getEvents()) {
+        if(e->insideInterval(startDate, endDate)) {
+            eventsInInterval.push_back(e->makeCopy());
+        }
+    }
+    sort(eventsInInterval.begin(), eventsInInterval.end(), [] (const Event * a, const Event * b) {
+        return a->isLowerThan(b);
+    });
+    vector<Event *> firstFifteenEvents;
+    size_t len = eventsInInterval.size();
+
+    if(len > 15)
+        len = 15;
+
+    for(size_t i = 0; i < len; i++) {
+        firstFifteenEvents.push_back(eventsInInterval[i]->makeCopy());
+    }
+    for(Event * event : eventsInInterval) {
+        delete event;  
+    }
+    return firstFifteenEvents;
 }
 
 
@@ -130,28 +276,70 @@ void MonthlyCalendar::display(WINDOW * win, const Datetime & date, int selected)
 void MonthlyCalendar::print(WINDOW * win, const Datetime & date, int selected) const {
     display(win, date, selected);
 }
+void MonthlyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events, bool showAll) const {
+    wclear(win);
+    int middle = getmaxx(win) / 2;
+    wattron(win, A_BOLD);
+    mvwprintw(win, 2, middle-6, "Events\n\n");
+    wattroff(win, A_BOLD);
 
-const vector<Event * > MonthlyCalendar::getEvents(const Datetime & start) const {
-    vector<Event *> dailyEvents;
-    // Getting start of day
+    if(events.size() == 0) {
+        wprintw(win, "No events\n");
+    }
+    for(const Event * e : events) {
+        if(showAll)
+            wprintw(win, "%s\n", e->toDays().c_str());
+        else    
+            wprintw(win, "%s\n", e->toHours().c_str());
+
+        // wprintw(win, "%s\n", e->ge);
+    }
+    wrefresh(win);
+}
+
+const vector<Event * > MonthlyCalendar::getEvents(const Datetime & start, bool showAll) const {
+    vector<Event *> eventsInInterval;
+
     Datetime startDate(start);
+    Datetime endDate(start);
+
+    // Special case to notify get everything in that week limited to 15 tho.
+    if(showAll) {
+        // Get all the events in the month
+        startDate.day = 1;
+        endDate.day = getDaysInMonth(start);
+    }
+   
     startDate.hour = 0;
     startDate.minute = 0;
     startDate.second = 0;
-
     // Getting end of day
-
-    Datetime endDate(start);
+    
     endDate.hour = 23;
     endDate.minute = 59;
-    endDate.second = 59;
+    endDate.second = 59;    
 
     for(const Event * e : m_Dictionary->getEvents()) {
         if(e->insideInterval(startDate, endDate)) {
-            dailyEvents.push_back(e->makeCopy());
+            eventsInInterval.push_back(e->makeCopy());
         }
     }
-    return dailyEvents;
+    sort(eventsInInterval.begin(), eventsInInterval.end(), [] (const Event * a, const Event * b) {
+        return a->isLowerThan(b);
+    });
+    vector<Event *> firstFifteenEvents;
+    size_t len = eventsInInterval.size();
+
+    if(len > 15)
+        len = 15;
+
+    for(size_t i = 0; i < len; i++) {
+        firstFifteenEvents.push_back(eventsInInterval[i]->makeCopy());
+    }
+    for(Event * event : eventsInInterval) {
+        delete event;  
+    }
+    return firstFifteenEvents;
 }
 
 
