@@ -47,7 +47,8 @@ string promptInput(WINDOW * win, string question) {
 }
 // Event * createNewEven
 
-int AddEventView(WINDOW * main, Calendar * cal) {
+int AddEventView(WINDOW * main, Calendar * cal, EventDictionary & storage) {
+
     int MAX_ROWS, MAX_COLS;
     getmaxyx(main, MAX_ROWS, MAX_COLS);
     wattron(main, A_UNDERLINE);
@@ -87,9 +88,9 @@ int AddEventView(WINDOW * main, Calendar * cal) {
         delwin(bWindow);
         return 0;
     }
-    Repeat repeat = stringToRepeat(repeatFormatted);
+    Event::Repeat repeat = stringToRepeat(repeatFormatted);
     if(type == "event" || type == "") {
-         string location = promptInput(bWindow, "Location:");
+        string location = promptInput(bWindow, "Location:");
         if(title == "exit") {
             clear();
             delwin(bWindow);
@@ -108,8 +109,9 @@ int AddEventView(WINDOW * main, Calendar * cal) {
             return 0;
         }
         Datetime start(timeStart);
-        event = new NormalEvent(Event(title, description, repeat), location, start, calculateEndtime(start, static_cast<long>(stoi(duration))));
-        cal->addEvent(event);
+        event = new NormalEvent(title, description, repeat, location, start, calculateEndtime(start, static_cast<long>(stoi(duration))));
+        
+        storage.addEvent(event);
         
     }
     

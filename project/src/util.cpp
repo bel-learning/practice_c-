@@ -122,11 +122,11 @@ Datetime secondsToDatetime(long long totalSeconds) {
 
 }
 
-Repeat stringToRepeat(const string & formatted) {
-    if(formatted == "weekly") return Repeat::Weekly;
-    if(formatted == "biweekly") return Repeat::BiWeekly;
-    if(formatted == "monthly") return Repeat::Monthly;
-    if(formatted == "daily") return Repeat::Daily;
-    if(formatted == "yearly") return Repeat::Yearly;
-    return Repeat::Yearly;
+Event::Repeat stringToRepeat(const string & formatted) {
+    if(formatted == "weekly") return Event::Repeat::Weekly;
+    if(formatted == "biweekly") return Event::Repeat::BiWeekly;
+    if(formatted == "monthly") return Event::Repeat::Monthly;
+    if(formatted == "daily") return Event::Repeat::Daily;
+    if(formatted == "yearly") return Event::Repeat::Yearly;
+    return Event::Repeat::Yearly;
 }

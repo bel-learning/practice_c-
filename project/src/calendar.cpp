@@ -15,17 +15,14 @@ Calendar::Calendar() {
 };
 Calendar::Calendar(const Datetime & time) : m_CurrentTime(time) {}
 Calendar::~Calendar() {}
-bool Calendar::addEvent(const Event * e) {
-    m_Events.push_back(e->makeCopy());
-}
-
+// bool Calendar::addEvent(const Event * e) {
+//     m_Events.push_back(e->makeCopy());
+// }
+// const std::vector<Event *> Calendar::getEvents(const Datetime & start) const 
 
 void Calendar::print(WINDOW * win, const Datetime & date, int selected) const {
 }   
 
-const vector<Event * > & Calendar::getEvents() const {
-
-}
 
 DailyCalendar::DailyCalendar() : Calendar() {};
 DailyCalendar::~DailyCalendar() {};
@@ -35,8 +32,27 @@ void DailyCalendar::print(WINDOW * win, const Datetime & date, int selected) con
 
 }
 
-const vector<Event * > & DailyCalendar::getEvents() const {
+const vector<Event * > DailyCalendar::getEvents(const Datetime & start) const {
+    vector<Event *> dailyEvents;
+    // Getting start of day
+    Datetime startDate(start);
+    startDate.hour = 0;
+    startDate.minute = 0;
+    startDate.second = 0;
 
+    // Getting end of day
+    int lastDay = getDaysInMonth(start);
+    Datetime endDate(start);
+    endDate.hour = 23;
+    endDate.minute = 59;    
+    endDate.second = 59;
+
+    for(const Event * e : m_Dictionary->getEvents()) {
+        if(e->insideInterval(startDate, endDate)) {
+            dailyEvents.push_back(e->makeCopy());
+        }
+    }
+    return dailyEvents;
 }
 
 
@@ -48,7 +64,7 @@ WeeklyCalendar::~WeeklyCalendar() {};
 void WeeklyCalendar::print(WINDOW * win, const Datetime & date, int selected) const {
 
 }
-const vector<Event * > & WeeklyCalendar::getEvents() const {
+const vector<Event * > WeeklyCalendar::getEvents(const Datetime & start) const {
 
 }
 
@@ -115,6 +131,50 @@ void MonthlyCalendar::print(WINDOW * win, const Datetime & date, int selected) c
     display(win, date, selected);
 }
 
-const vector<Event * > & MonthlyCalendar::getEvents() const {
+const vector<Event * > MonthlyCalendar::getEvents(const Datetime & start) const {
+    vector<Event *> dailyEvents;
+    // Getting start of day
+    Datetime startDate(start);
+    startDate.hour = 0;
+    startDate.minute = 0;
+    startDate.second = 0;
 
+    // Getting end of day
+
+    Datetime endDate(start);
+    endDate.hour = 23;
+    endDate.minute = 59;
+    endDate.second = 59;
+
+    for(const Event * e : m_Dictionary->getEvents()) {
+        if(e->insideInterval(startDate, endDate)) {
+            dailyEvents.push_back(e->makeCopy());
+        }
+    }
+    return dailyEvents;
+}
+
+
+EventDictionary::EventDictionary() {};
+
+EventDictionary::EventDictionary(const EventDictionary * ed) : m_Events(ed->m_Events) {};
+
+EventDictionary::EventDictionary(const EventDictionary & ed) : m_Events(ed.m_Events) {};
+
+EventDictionary EventDictionary::operator= (const EventDictionary & ed) {
+    if(this == &ed) return *this;
+    for(Event * e : m_Events)
+        delete e;
+    m_Events = ed.m_Events;
+    return *this;
+};
+EventDictionary::~EventDictionary(){};
+
+void EventDictionary::addEvent(const Event * event) {
+    m_Events.push_back(event->makeCopy());
+}
+
+
+const vector<Event *> & EventDictionary::getEvents() {
+    return m_Events;
 }

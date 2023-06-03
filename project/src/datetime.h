@@ -17,8 +17,19 @@ class Datetime {
     Datetime() ;
     Datetime(const tm * localTime) ;
     Datetime(const std::string & formatted);
+    Datetime(int y, int m, int d, int h, int mi, int sec);
     ~Datetime() {};
     friend std::ostream & operator << (std::ostream & out, const Datetime & dt);
+    std::string toString() const;
+    bool operator > (const Datetime & other) const;
+    bool operator >= (const Datetime & other) const;
+
+    bool operator <= (const Datetime & other) const;
+    bool operator < (const Datetime & other) const;
+
+    bool operator==(const Datetime& other) const;
+
+
     long long toSeconds() const;
 
 };

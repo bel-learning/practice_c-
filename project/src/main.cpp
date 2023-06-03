@@ -12,14 +12,27 @@
 #include "views/MenuView.h"
 #include "views/CalendarView.h"
 #include "views/EventView.h"
+#include "event.h"
 
 using namespace std;
 
+void addDummyData(EventDictionary * storage) {
+    Datetime start = getCurrentDateTime();
+    Datetime end = getCurrentDateTime();
+    start.hour = 12;
+    end.hour = 13;
 
+    storage->addEvent(new NormalEvent("Meeting1", "...", Event::Repeat::Monthly, "nowhere", start, end));
+    start.hour = 13;
+    end.hour = 14;
+    storage->addEvent(new NormalEvent("Meeting2", "...", Event::Repeat::Monthly, "nowhere", start, end));
+
+}
 
 int main() {
     Calendar * cal = nullptr;
-
+    EventDictionary storage;
+    addDummyData(&storage);
     MainState state;
     int row = 20;
     int col = 80;
@@ -30,6 +43,7 @@ int main() {
     }
     noecho();
     keypad(mainWin, TRUE);
+
 
     bool running = true;
     state = MainState::MenuView;
@@ -64,6 +78,10 @@ int main() {
                 refresh();
                 clear();
                 box(mainWin, 0,0);
+                if(choice == Menu::SMonthlyCalendar)
+                    cal = new MonthlyCalendar();
+                // 
+                cal->referDictionary(&storage);
                 res = GetCalendarView(choice, mainWin, cal);
                 state = MainState::MenuView;
                 break;
@@ -72,7 +90,7 @@ int main() {
                 refresh();
                 clear();
                 box(mainWin, 0,0);
-                res = AddEventView(mainWin, cal);
+                res = AddEventView(mainWin, cal, storage);
                 state = MainState::MenuView;
                 break;
 

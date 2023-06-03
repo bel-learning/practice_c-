@@ -31,7 +31,6 @@ int GetMenuView(WINDOW * main, Calendar * cal) {
     std::string Quit = "Quit";
     
     int s = 3;
-    int debugPos = 1;
     int selectedButton = 0;
 
     while(true) {

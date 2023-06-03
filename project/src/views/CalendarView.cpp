@@ -3,19 +3,33 @@
 #include "../window.h"
 #include "../util.h"
 
+void DisplayEvents(WINDOW * win, const vector<Event *> & events) {
+    wclear(win);
+    int middle = getmaxx(win) / 2;
+    wattron(win, A_BOLD);
+    mvwprintw(win, 2, middle-6, "Events\n\n");
+    wattroff(win, A_BOLD);
+
+    if(events.size() == 0) {
+        wprintw(win, "No events\n");
+    }
+    for(const Event * e : events) {
+        wprintw(win, "%s\n", e->toString().c_str());
+        // wprintw(win, "%s\n", e->ge);
+    }
+    wrefresh(win);
+}
 
 int DisplayMonthly(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal, int MAX_ROWS, int MAX_COLS) {
     Datetime showDate = getCurrentDateTime();
-
+    
     int selected = 0;
     int monthDay = getDaysInMonth(showDate);
     int ch;
      while(true) {
-        string pr = to_string(showDate.month);
-        const char * num1 = pr.c_str();
-        mvwprintw(rWindow, 2, 2, num1);
         wrefresh(rWindow);
         wclear(lWindow);
+        wclear(rWindow);
 
         if (selected == 0) {
             if(ch == KEY_LEFT || ch == KEY_SLEFT || ch == 260) {
@@ -28,6 +42,7 @@ int DisplayMonthly(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal, int MAX_
             }
             if(ch == KEY_DOWN) {
                 selected++;
+                showDate.day = selected;
             }
             if(ch == KEY_UP) {
                 selected = monthDay;
@@ -43,6 +58,8 @@ int DisplayMonthly(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal, int MAX_
                 case KEY_RIGHT:
                 case KEY_SRIGHT:
                     selected++;
+                    if(selected > monthDay)
+                        selected = 1;
                     break;
                 
                 case KEY_DOWN:
@@ -59,35 +76,34 @@ int DisplayMonthly(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal, int MAX_
                         selected -= 7;
                     break;
             }
+            if(selected)
+                showDate.day = selected;
         }
 
-        
         cal->print(lWindow, showDate, selected);
+        // wrefresh()
         // mvwprintw(rWindow, 2, rCols/2 - 8, "Events");
+        if (selected)
+            DisplayEvents(rWindow, cal->getEvents(showDate));
+
         wrefresh(lWindow);
         wrefresh(rWindow);
-        wclear(rWindow);
+
         ch = getch();
-        string str = to_string(ch);
-        const char * num = str.c_str();
-        mvwprintw(rWindow, 2,2, num);
-        string selectedStr = to_string(selected);
-        const char * num2 = selectedStr.c_str();
-        mvwprintw(rWindow, 4,4, num2);  
-        
-        wrefresh(rWindow);
+
         if(ch == 'q') {
             wclear(lWindow);
             wclear(rWindow);
             delwin(lWindow);
             delwin(rWindow);
-
             return 1;
         }
-       
-        
         
     }
+}
+
+int DisplayWeekly(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal, int MAX_ROWS, int MAX_COLS) {
+
 }
 
 int GetCalendarView(int type, WINDOW * main, Calendar * cal) {
@@ -97,8 +113,6 @@ int GetCalendarView(int type, WINDOW * main, Calendar * cal) {
     WINDOW * lWindow = subwin(main, MAX_ROWS - 3, MAX_COLS/2 - 2, 1,1);
     WINDOW * rWindow = subwin(main, MAX_ROWS - 3, MAX_COLS/2 - 4, 1,MAX_COLS/2+2);
     
-    int rows, cols;
- 
 
     int lRows = MAX_ROWS - 3;
     int lCols = MAX_COLS/2 - 2;
@@ -110,7 +124,6 @@ int GetCalendarView(int type, WINDOW * main, Calendar * cal) {
 
     if (type == Menu::SMonthlyCalendar) {
         
-        cal = new MonthlyCalendar();
         int state = DisplayMonthly(lWindow, rWindow, cal, MAX_ROWS, MAX_COLS);
         return state;
     }

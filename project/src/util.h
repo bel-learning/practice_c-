@@ -25,5 +25,7 @@ void writeToDebug(const char & out);
 // Duration in mins
 Datetime calculateEndtime(const Datetime & start, int duration) ;
 Datetime secondsToDatetime(long long seconds);
-Repeat stringToRepeat(const string & formatted);
+Event::Repeat stringToRepeat(const string & formatted);
+
+
 #endif // UTIL_H

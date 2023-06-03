@@ -15,11 +15,19 @@
 
 class EventDictionary {
     public:
-    EventDictionary() {};
+    EventDictionary();
+    EventDictionary(const EventDictionary & ed);
+    EventDictionary(const EventDictionary * ed);
+
+    ~EventDictionary();
+
+    EventDictionary operator= (const EventDictionary & ed);
+    void addEvent(const Event * event);
+    const vector<Event *> & getEvents();
     private:
     // std::unordered_map<std::string, Event * > names;
     // std::unordered_map<std::string, Event * > places;
-
+    std::vector<Event *> m_Events;
 };
 
 class Calendar {
@@ -29,16 +37,18 @@ class Calendar {
         Calendar(const Datetime & time) ;
         Calendar & operator = (const Calendar & cal);
         virtual ~Calendar();
-        virtual const std::vector<Event *> & getEvents() const;
+        virtual const std::vector<Event *> getEvents(const Datetime & start) const = 0;
         virtual void print(WINDOW * win, const Datetime & date, int selected) const;
-        bool addEvent(const Event * e);
+        // bool addEvent(const Event * e);
+        void referDictionary(EventDictionary * ed) {
+            m_Dictionary = ed;
+        }
         
     protected:
         std::string m_Username;
-        std::vector<Event *> m_Events;
         Datetime m_CurrentTime;
         // For searching capabilities
-        EventDictionary m_Dictionary;
+        EventDictionary * m_Dictionary;
 };
 
 
@@ -46,7 +56,7 @@ class WeeklyCalendar : public Calendar {
     public:
         WeeklyCalendar();
         ~WeeklyCalendar();
-        const std::vector<Event *> & getEvents() const override;
+        const std::vector<Event *> getEvents(const Datetime & start) const override;
         void display(WINDOW * win, const Datetime & date, int active);
         
         void print(WINDOW * win,const Datetime & date, int selected) const override;
@@ -61,7 +71,7 @@ class DailyCalendar : public Calendar {
         void print(WINDOW * win,const Datetime & date, int selected) const override;
         void display(WINDOW * win, const Datetime & date, int active);
         
-        const std::vector<Event *> & getEvents() const override;
+        const std::vector<Event *> getEvents(const Datetime & start) const override;
 
 
     private:
@@ -70,6 +80,7 @@ class DailyCalendar : public Calendar {
 class MonthlyCalendar : public Calendar {
     public:
         MonthlyCalendar();
+    
         ~MonthlyCalendar();
 
 
@@ -77,7 +88,7 @@ class MonthlyCalendar : public Calendar {
         void display(WINDOW * win, const Datetime & date, int selected) const;
 
     
-        const std::vector<Event *> & getEvents() const override;
+        const std::vector<Event *> getEvents(const Datetime & start) const override;
 
     private:
 };
