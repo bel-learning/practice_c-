@@ -29,8 +29,6 @@ void addDummyData(EventDictionary * storage) {
     end.hour = 14;
     storage->addRepeatEvent(new NormalEvent("Study sap", "...", Event::Repeat::Monthly, "nowhere", start, end));
 
-    
-
     start.day = 5;
     start.hour = 14;
     end.day = 5;
@@ -130,6 +128,7 @@ int main() {
                 state = MainState::MenuView;
                 if(cal != nullptr)
                     delete cal;
+                cal = nullptr;
                 break;
 
             case MainState::EventView:

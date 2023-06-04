@@ -11,7 +11,9 @@ int triggerMonthlyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
     int selected = 0;
     int monthDay = getDaysInMonth(showDate);
     int ch = 0;
-     while(true) {
+    vector<Event *> events;
+
+    while(true) {
         wrefresh(rWindow);
         wclear(lWindow);
         wclear(rWindow);
@@ -68,24 +70,32 @@ int triggerMonthlyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
         cal->print(lWindow, showDate, selected);
         // wrefresh()
         // mvwprintw(rWindow, 2, rCols/2 - 8, "Events");
+        bool showAll = true;
         if (selected)
-            cal->displayEvents(rWindow, cal->getEvents(showDate, false), false);
-        else 
-            cal->displayEvents(rWindow, cal->getEvents(showDate, true),true);
+            showAll = false;
+
+        for(Event * event : events)
+            delete event;
+
+        events = cal->getEvents(showDate, showAll);
+        cal->displayEvents(rWindow, events ,showAll);
+
         wrefresh(lWindow);
         wrefresh(rWindow);
 
         ch = getch();
 
-        if(ch == 'q') {
-            wclear(lWindow);
-            wclear(rWindow);
-            delwin(lWindow);
-            delwin(rWindow);
-            return 1;
-        }
-        
+        if(ch == 'q')
+            break;
     }
+    
+    for(Event * event : events)
+        delete event;
+    wclear(lWindow);
+    wclear(rWindow);
+    delwin(lWindow);
+    delwin(rWindow);
+    return 1;
 }
 
 int triggerWeeklyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
@@ -96,6 +106,7 @@ int triggerWeeklyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
     showDate = startOfCurrentWeek(showDate);
     int selected = 0;
     int ch = 0;
+    vector<Event *> events;
     while(true) {
         wrefresh(rWindow);
         wclear(lWindow);
@@ -134,10 +145,15 @@ int triggerWeeklyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
 
         
         cal->print(lWindow, showDate, selected);
+        bool showAll = true;
         if (selected)
-            cal->displayEvents(rWindow, cal->getEvents(showDate, false), false);
-        else
-            cal->displayEvents(rWindow, cal->getEvents(showDate, true), true);
+            showAll = false;
+
+        for(Event * event : events)
+            delete event;
+
+        events = cal->getEvents(showDate, showAll);
+        cal->displayEvents(rWindow, events ,showAll);
 
         wrefresh(lWindow);
         wrefresh(rWindow);
@@ -145,16 +161,17 @@ int triggerWeeklyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
         ch = getch();
 
         if(ch == 'q') {
-            wclear(lWindow);
-            wclear(rWindow);
-            delwin(lWindow);
-            delwin(rWindow);
-            return 1;
+            break;
         }
         
     }
-
-    return 0;
+    for(Event * event : events)
+        delete event;
+    wclear(lWindow);
+    wclear(rWindow);
+    delwin(lWindow);
+    delwin(rWindow);
+    return 1;
 }
 int triggerDailyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
     wclear(lWindow);
@@ -162,6 +179,7 @@ int triggerDailyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
     
     Datetime showDate = getCurrentDateTime();
     int ch = 0;
+    vector<Event *> events;
     while(true) {
         wrefresh(rWindow);
         wclear(lWindow);
@@ -186,9 +204,12 @@ int triggerDailyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
         
         cal->print(lWindow, showDate, 0);
         // wmove()
-        vector<Event *> eventsToDisplay = cal->getEvents(showDate, false);
+        for (Event * event : events)
+            delete event;
+
+        events = cal->getEvents(showDate, false);
        
-        cal->displayEvents(rWindow, eventsToDisplay);
+        cal->displayEvents(rWindow, events);
 
         wrefresh(lWindow);
         wrefresh(rWindow);
@@ -196,15 +217,17 @@ int triggerDailyView(WINDOW * lWindow, WINDOW * rWindow,  Calendar * cal) {
         ch = getch();
 
         if(ch == 'q') {
-            wclear(lWindow);
-            wclear(rWindow);
-            delwin(lWindow);
-            delwin(rWindow);
-            return 1;
+            break;
         }
         
     }
-
+    for (Event * event : events)
+            delete event;
+    wclear(lWindow);
+    wclear(rWindow);
+    delwin(lWindow);
+    delwin(rWindow);
+    return 1;
 }
 
 int GetCalendarView(int type, WINDOW * main, Calendar * cal) {
@@ -214,13 +237,6 @@ int GetCalendarView(int type, WINDOW * main, Calendar * cal) {
     // Dividing the screen in half. One for calendar, 1 for days
     WINDOW * lWindow = subwin(main, MAX_ROWS - 3, MAX_COLS/2 - 2, 1,1);
     WINDOW * rWindow = subwin(main, MAX_ROWS - 3, MAX_COLS/2 - 4, 1,MAX_COLS/2+2);
-
-    // int lRows = MAX_ROWS - 3;
-    // int lCols = MAX_COLS/2 - 2;
-
-    // int rRows = MAX_ROWS - 3;
-    // int rCols = MAX_COLS/2 - 4;
-
    
 
     if (type == Menu::SMonthlyCalendar) {

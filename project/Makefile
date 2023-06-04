@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -Wall -lncurses -fsanitize=address
+CFLAGS = -std=c++11 -Wall -fsanitize=address -lncurses -g
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -22,7 +22,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 	
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ 
 
 $(BUILD_DIR):
 	mkdir -p $(dir $(OBJS))

@@ -85,7 +85,7 @@ Datetime::Datetime(const std::string & formatted) {
     second = 0;
 
     int occur = 0;
-    for(int i = 0; i < formatted.size(); i++) {
+    for(size_t i = 0; i < formatted.size(); i++) {
         if(formatted[i] == '-')
             occur++;
     }

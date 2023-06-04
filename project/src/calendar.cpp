@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <algorithm>
 #include "event.h"
 #include "calendar.h"
 #include "datetime.h"
@@ -439,9 +440,11 @@ const vector<Event * > MonthlyCalendar::getEvents(const Datetime & start, bool s
     for(size_t i = 0; i < len; i++) {
         firstFifteenEvents.push_back(eventsInInterval[i]->makeCopy());
     }
+
     for(Event * event : eventsInInterval) {
         delete event;  
     }
+
     return firstFifteenEvents;
 }
 
@@ -470,9 +473,11 @@ EventDictionary::~EventDictionary(){
 
 void EventDictionary::addEvent(const Event * event) {
     m_Events.push_back(event->makeCopy());
+    delete event;
 }
 void EventDictionary::addRepeatEvent(const Event * event) {
     m_RepeatEvents.push_back(event->makeCopy());
+    delete event;
 }
 
 

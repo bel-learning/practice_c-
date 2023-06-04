@@ -153,7 +153,6 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         storage->addRepeatEvent(event);
     else 
         storage->addEvent(event);
-    delete event;
     delwin(bWindow);
     return 1;
 }
