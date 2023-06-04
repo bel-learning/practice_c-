@@ -69,8 +69,8 @@ int getDaysInMonth(const Datetime & date) {
     return numDays;
 }   
 
-void writeToDebug(const string & out, ofstream & file) {
-    // ofstream file("../debugger.txt");
+void writeToDebug(const string & out) {
+    ofstream file("../debugger.txt");
     file << out << endl;
     return;
 }
@@ -203,6 +203,7 @@ Datetime secondsToDatetime(long long totalSeconds) {
 }
 
 Event::Repeat stringToRepeat(const string & formatted) {
+    if(formatted == "") return Event::Repeat::None;
     if(formatted == "weekly") return Event::Repeat::Weekly;
     if(formatted == "biweekly") return Event::Repeat::BiWeekly;
     if(formatted == "monthly") return Event::Repeat::Monthly;
@@ -249,4 +250,21 @@ Datetime startOfPreviosWeek(const Datetime & dt) {
     Datetime res = startOfCurrentWeek(dt);
     res = findYesterday(res);
     return res;
+}
+
+long long repeatToSeconds(const Event::Repeat & repeat) {
+    switch(repeat) {
+        case Event::Repeat::Yearly:
+            return 365 * 24 * 60 * 60;
+        case Event::Repeat::Monthly:
+            return 30 * 24 * 60 * 60;
+        case Event::Repeat::BiWeekly:
+            return 14 * 24 * 60 * 60;
+        case Event::Repeat::Weekly:
+            return 7 * 24 * 60 * 60;
+        case Event::Repeat::Daily:
+            return 24 * 60 * 60;
+        default:
+            return 0;
+    }
 }

@@ -10,7 +10,7 @@ class Event {
     // There will be different kinds of events
 
     public:
-    enum Repeat {Daily, Weekly, BiWeekly, Monthly, Yearly};
+    enum Repeat {Daily, Weekly, BiWeekly, Monthly, Yearly, None};
 
     Event(const string & title, const string & description, Repeat repeat);
     // Copy constructor
@@ -25,7 +25,8 @@ class Event {
     virtual Event * makeCopy() const = 0;
     virtual void renderInHours(WINDOW * win) const = 0;
     virtual void renderInDays(WINDOW * win) const = 0;
-
+    virtual Event * findNextRepeatable() const = 0;
+    virtual Event * findPreviousRepeatable() const = 0;
 
     virtual bool isLowerThan(const Event * e) const = 0;
     virtual Datetime getCompareDate() const = 0;
@@ -48,6 +49,8 @@ class NormalEvent : public Event {
     NormalEvent operator = (const NormalEvent & event);
 
     ~NormalEvent() {};
+    Event * findNextRepeatable() const override;
+    Event * findPreviousRepeatable() const override;
 
     Event * makeCopy() const override;
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
@@ -74,6 +77,8 @@ class Task : public Event {
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
     void renderInHours(WINDOW * win) const override;
     void renderInDays(WINDOW * win) const override;
+    Event * findNextRepeatable() const override;
+    Event * findPreviousRepeatable() const override;
 
     void display() override;
     bool isLowerThan(const Event * e) const override;
@@ -95,6 +100,8 @@ class Deadline : public Event {
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
     void renderInHours(WINDOW * win) const override;
     void renderInDays(WINDOW * win) const override;
+    Event * findNextRepeatable() const override;
+    Event * findPreviousRepeatable() const override;
 
     void display() override;
     bool isLowerThan(const Event * e) const override;

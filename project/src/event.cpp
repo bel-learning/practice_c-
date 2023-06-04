@@ -70,7 +70,28 @@ void NormalEvent::renderInDays(WINDOW * win) const {
     wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
     wrefresh(win);
 };
-
+Event * NormalEvent::findNextRepeatable() const {
+    Datetime newStart(m_Start);
+    Datetime newEnd(m_End);
+    long long newStartSec = newStart.toSeconds();
+    long long newEndSec = newEnd.toSeconds();
+    long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
+    newStartSec += repeatSec;
+    newEndSec += repeatSec;
+    writeToDebug(Datetime(secondsToDatetime(newStartSec)).toString());
+    return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)));
+} ;
+Event * NormalEvent::findPreviousRepeatable() const {
+    Datetime newStart(m_Start);
+    Datetime newEnd(m_End);
+    long long newStartSec = newStart.toSeconds();
+    long long newEndSec = newEnd.toSeconds();
+    long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
+    newStartSec -= repeatSec;
+    newEndSec -= repeatSec;
+    
+    return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)));
+} ;
 
 
 bool NormalEvent::isLowerThan(const Event * e) const {
@@ -131,7 +152,28 @@ bool Task::isLowerThan(const Event * e) const {
 Datetime Task::getCompareDate() const {
     return m_Start;
 };
-
+Event * Task::findNextRepeatable() const {
+    Datetime newStart(m_Start);
+    Datetime newEnd(m_End);
+    long long newStartSec = newStart.toSeconds();
+    long long newEndSec = newEnd.toSeconds();
+    long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
+    newStartSec += repeatSec;
+    newEndSec += repeatSec;
+    
+    return new Task(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)), m_Finished);
+} ;
+Event * Task::findPreviousRepeatable() const {
+    Datetime newStart(m_Start);
+    Datetime newEnd(m_End);
+    long long newStartSec = newStart.toSeconds();
+    long long newEndSec = newEnd.toSeconds();
+    long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
+    newStartSec -= repeatSec;
+    newEndSec -= repeatSec;
+    
+    return new Task(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)), m_Finished);
+} ;
 // Deadline::Deadline(const string & formatted) {}
 Deadline::Deadline(const string & title, const string & description, Repeat repeat, const Datetime & end)
     : Event(title, description, repeat), m_End(end) {};
@@ -169,4 +211,21 @@ bool Deadline::isLowerThan(const Event * e) const {
 };
 Datetime Deadline::getCompareDate() const {
     return m_End;
+};
+
+Event * Deadline::findNextRepeatable() const {
+    Datetime newEnd(m_End);
+    long long newEndSec = newEnd.toSeconds();
+    long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
+    newEndSec += repeatSec;
+    
+    return new Deadline(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newEndSec)));
+} ;
+Event * Deadline::findPreviousRepeatable() const {
+    Datetime newEnd(m_End);
+    long long newEndSec = newEnd.toSeconds();
+    long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
+    newEndSec -= repeatSec;
+    
+    return new Deadline(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newEndSec)));
 };

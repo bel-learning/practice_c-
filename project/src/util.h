@@ -20,13 +20,14 @@ int getDaysInMonth(const Datetime & time);
 Datetime increaseMonth(Datetime & date);
 Datetime decreaseMonth(Datetime & date);
 
-void writeToDebug(const string & out, ofstream & file);
+void writeToDebug(const string & out);
 void writeToDebug(const int & out);
 void writeToDebug(const char & out);
 // Duration in mins
 Datetime calculateEndtime(const Datetime & start, long long duration) ;
 Datetime secondsToDatetime(long long seconds);
 Event::Repeat stringToRepeat(const string & formatted);
+long long repeatToSeconds(const Event::Repeat & repeat);
 
 Datetime findYesterday(const Datetime& dt);
 Datetime findTomorrow(const Datetime& dt);

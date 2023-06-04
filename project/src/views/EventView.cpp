@@ -79,14 +79,14 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         return 0;
     }
     
-    
-    string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly):");
+    string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly, or none):");
      if(repeatFormatted == "exit") {
         clear();
         delwin(bWindow);
         return 0;
     }
     Event::Repeat repeat = stringToRepeat(repeatFormatted);
+    
     if(type == "event" || type == "") {
         string location = promptInput(bWindow, "Location:");
         if(location == "exit") {
@@ -109,6 +109,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         Datetime start(timeStart);
         event = new NormalEvent(title, description, repeat, location, start, calculateEndtime(start, static_cast<long long>(stoi(duration))));
         storage->addEvent(event);
+
     }
 
     if(type == "task") {
@@ -153,7 +154,9 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         storage->addEvent(event);
     }
 
-
+    if(repeat != Event::Repeat::None)
+            storage->addRepeatEvent(event);
+    delete event;
     delwin(bWindow);
     return 1;
 }

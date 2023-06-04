@@ -23,10 +23,15 @@ class EventDictionary {
 
     EventDictionary operator= (const EventDictionary & ed);
     void addEvent(const Event * event);
-    const vector<Event *> & getEvents();
+    void addRepeatEvent(const Event * event);
+
+    const vector<Event *> & getEvents() const;
+    const vector<Event *> & getRepeatEvents() const;
+
     private:
     // std::unordered_map<std::string, Event * > names;
     // std::unordered_map<std::string, Event * > places;
+    std::vector<Event *> m_RepeatEvents;
     std::vector<Event *> m_Events;
 };
 
