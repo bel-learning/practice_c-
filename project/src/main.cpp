@@ -1,5 +1,4 @@
 #include <ncurses.h>
-#include <curses.h>
 #include <iostream>  
 #include <iomanip>
 #include <chrono>
@@ -12,6 +11,8 @@
 #include "views/MenuView.h"
 #include "views/CalendarView.h"
 #include "views/EventView.h"
+#include "views/ImportView.h"
+#include "views/ExportView.h"
 #include "event.h"
 
 using namespace std;
@@ -89,20 +90,28 @@ int main() {
             case MainState::MenuView:
                 box(mainWin, 0,0);
                 choice = GetMenuView(mainWin, cal);
-                
-                if (choice == Menu::SQuit)
-                    break;
+                switch(choice) {
+                    case Menu::SQuit:
+                        break;
 
-                if (choice == Menu::SDailyCalendar || 
-                    choice == Menu::SMonthlyCalendar ||
-                    choice == Menu::SWeeklyCalendar
-                ) {
-                    state = MainState::CalendarView;
-                    break;
-                }
-                if (choice == Menu::SAddEvent) {
-                    state = MainState::EventView;
-                    break;
+                    case Menu::SDailyCalendar:
+                    case Menu::SMonthlyCalendar:
+                    case Menu::SWeeklyCalendar:
+                        state = MainState::CalendarView;
+                        break;
+                    case Menu::SAddEvent:
+                        state = MainState::EventView;
+                        break;
+                    case Menu::SImportView:
+                        state = MainState::ImportView;
+                        break;
+                    case Menu::SExportView:
+                        state = MainState::ExportView;
+                        break;
+                    case Menu::SSearchView:
+                        state = MainState::SearchView;
+                        break;
+                   
                 }
                 break;
             case MainState::CalendarView:
@@ -131,6 +140,21 @@ int main() {
                 state = MainState::MenuView;
                 break;
 
+            case MainState::ImportView:
+                refresh();
+                clear();
+                box(mainWin, 0,0);
+                res = GetImportView(mainWin, &storage);
+                state = MainState::MenuView;
+                break;
+            
+            case MainState::ExportView:
+                refresh();
+                clear();
+                box(mainWin, 0,0);
+                res = GetExportView(mainWin, &storage);
+                state = MainState::MenuView;
+                break;
         }
 
         if(choice == Menu::SQuit)

@@ -1,0 +1,1 @@
+This is a calendar app done in ncurses. It has functionality of managing, import, exporting and displaying events.

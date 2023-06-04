@@ -102,6 +102,12 @@ bool NormalEvent::isLowerThan(const Event * e) const {
 Datetime NormalEvent::getCompareDate() const {
     return m_Start;
 };
+stringstream NormalEvent::toFile() const {
+    stringstream out;
+    out << "deadline," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
+    out << m_Location << "," << m_Start.toFileString() << "," << m_End.toFileString() << ",";
+    return out;
+};
 
 
 Task::Task(const string & title, const string & description, Repeat repeat, const Datetime & start, const Datetime & end, bool finished)
@@ -173,7 +179,16 @@ Event * Task::findPreviousRepeatable() const {
     newEndSec -= repeatSec;
     
     return new Task(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)), m_Finished);
-} ;
+};
+
+stringstream Task::toFile() const {
+    stringstream out;
+    out << "deadline," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
+    out << m_Start.toFileString() << "," << m_End.toFileString() << "," << m_Finished;
+    return out;
+};
+
+
 // Deadline::Deadline(const string & formatted) {}
 Deadline::Deadline(const string & title, const string & description, Repeat repeat, const Datetime & end)
     : Event(title, description, repeat), m_End(end) {};
@@ -228,4 +243,10 @@ Event * Deadline::findPreviousRepeatable() const {
     newEndSec -= repeatSec;
     
     return new Deadline(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newEndSec)));
+};
+stringstream Deadline::toFile() const {
+    stringstream out;
+    out << "deadline," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
+    out << m_End.toFileString();
+    return out;
 };

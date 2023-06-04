@@ -27,6 +27,8 @@ void writeToDebug(const char & out);
 Datetime calculateEndtime(const Datetime & start, long long duration) ;
 Datetime secondsToDatetime(long long seconds);
 Event::Repeat stringToRepeat(const string & formatted);
+string repeatToString(const Event::Repeat & repeat);
+
 long long repeatToSeconds(const Event::Repeat & repeat);
 
 Datetime findYesterday(const Datetime& dt);

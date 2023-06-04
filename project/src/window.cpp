@@ -1,5 +1,4 @@
 #include<ncurses.h>
-#include<curses.h>
 #include<utility>
 #include<string>
 #include<iostream>

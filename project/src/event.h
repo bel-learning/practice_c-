@@ -3,7 +3,8 @@
 #include "datetime.h"
 #include<ncurses.h>
 #include<string>
-
+#include<sstream>
+#include<iostream>
 using namespace std;
 
 class Event {
@@ -25,6 +26,7 @@ class Event {
     virtual Event * makeCopy() const = 0;
     virtual void renderInHours(WINDOW * win) const = 0;
     virtual void renderInDays(WINDOW * win) const = 0;
+    virtual stringstream toFile() const = 0;
     virtual Event * findNextRepeatable() const = 0;
     virtual Event * findPreviousRepeatable() const = 0;
 
@@ -53,6 +55,7 @@ class NormalEvent : public Event {
     Event * findPreviousRepeatable() const override;
 
     Event * makeCopy() const override;
+    stringstream toFile() const  override;
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
     void renderInHours(WINDOW * win) const override;
     void renderInDays(WINDOW * win) const override;
@@ -77,6 +80,8 @@ class Task : public Event {
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
     void renderInHours(WINDOW * win) const override;
     void renderInDays(WINDOW * win) const override;
+    stringstream toFile() const  override;
+
     Event * findNextRepeatable() const override;
     Event * findPreviousRepeatable() const override;
 
@@ -100,6 +105,8 @@ class Deadline : public Event {
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
     void renderInHours(WINDOW * win) const override;
     void renderInDays(WINDOW * win) const override;
+    stringstream toFile() const  override;
+
     Event * findNextRepeatable() const override;
     Event * findPreviousRepeatable() const override;
 

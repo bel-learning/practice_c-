@@ -220,3 +220,9 @@ bool Datetime::operator==(const Datetime& other) const {
     return year == other.year && month == other.month && day == other.day &&
                hour == other.hour && minute == other.minute && second == other.second;
 }
+
+std::string Datetime::toFileString() const {
+    string res;
+    res.append(to_string(year) + "-" + to_string(month) + "-" + to_string(day) + "-" + to_string(hour) + "-" + to_string(minute) + "-" + to_string(second));
+    return res;
+}

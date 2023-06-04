@@ -268,3 +268,19 @@ long long repeatToSeconds(const Event::Repeat & repeat) {
             return 0;
     }
 }
+string repeatToString(const Event::Repeat & repeat) {
+    switch(repeat) {
+        case Event::Repeat::Yearly:
+            return "yearly";
+        case Event::Repeat::Monthly:
+            return "monthly";
+        case Event::Repeat::BiWeekly:
+            return "biweekly";
+        case Event::Repeat::Weekly:
+            return "weekly";
+        case Event::Repeat::Daily:
+            return "daily";
+        default:
+            return "none";
+    }
+}

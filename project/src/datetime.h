@@ -20,9 +20,11 @@ class Datetime {
     Datetime(const Datetime & dt);
     Datetime(int y, int m, int d, int h, int mi, int sec);
     Datetime operator=(const Datetime & dt);
+    
     ~Datetime() {};
     friend std::ostream & operator << (std::ostream & out, const Datetime & dt);
     std::string toString() const;
+    std::string toFileString() const;
     bool operator > (const Datetime & other) const;
     bool operator >= (const Datetime & other) const;
 
