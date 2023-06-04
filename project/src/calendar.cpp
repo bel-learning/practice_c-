@@ -30,9 +30,9 @@ void DailyCalendar::print(WINDOW * win, const Datetime & date, int selected) con
     wclear(win);
     int MAX_COLS = getmaxx(win);
 
-    wattron(win, A_REVERSE);
+    wattron(win, COLOR_PAIR(3));
     mvwprintw(win, 2 , MAX_COLS / 2 - 10, "<Daily Calendar>");
-    wattroff(win, A_REVERSE);
+    wattroff(win, COLOR_PAIR(3));
 
     mvwprintw(win, 2 + 2, MAX_COLS / 2 - 10, "Today is %d %s", date.day, getMonthName(date.month).c_str());
 
@@ -49,11 +49,7 @@ void DailyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events, 
         wprintw(win, "No events\n");
     }
     for(const Event * e : events) {
-        wprintw(win, "%s\n", e->toHours().c_str());
-        // wprintw(win, "%s\n", e->ge);
-        wattron(win, A_LOW);
-        wprintw(win, "%s\n", e->getDescription().c_str());
-        wattroff(win, A_LOW);
+        e->renderInHours(win);
     }
     wrefresh(win);
 }
@@ -117,9 +113,9 @@ void WeeklyCalendar::print(WINDOW * win, const Datetime & date, int selected) co
     wattroff(win, A_BOLD);
 
     if (selected == 0) {
-        wattron(win, A_REVERSE);
+        wattron(win, COLOR_PAIR(3));
         mvwprintw(win, 2 + paddingTop, MAX_COLS/2 - 11, "<%02d %s-%02d %s>\n", start.day, getMonthName(start.month).c_str(), end.day, getMonthName(end.month).c_str());
-        wattroff(win, A_REVERSE);
+        wattroff(win, COLOR_PAIR(3));
     }
     else {
         mvwprintw(win, 2 + paddingTop, MAX_COLS/2 - 10, "%02d %s-%02d %s\n", start.day, getMonthName(start.month).c_str(), end.day, getMonthName(end.month).c_str());
@@ -133,14 +129,14 @@ void WeeklyCalendar::print(WINDOW * win, const Datetime & date, int selected) co
         if(weekDayIndex > 6)
             weekDayIndex = 0;
         if(selected == i)
-            wattron(win, A_REVERSE);
+            wattron(win, COLOR_PAIR(3));
         if(2 + paddingTop + iRows * i >= MAX_ROWS-1)
             break;
         mvwprintw(win, 2 + paddingTop + iRows * i, MAX_COLS/2 - 10, "%02d %s\n", iterateDate.day ,getDayOfWeek(weekDayIndex).c_str());
         iterateDate = findTomorrow(iterateDate);
-        wattroff(win, A_REVERSE);
+        wattroff(win, COLOR_PAIR(3));
     }
-    wattroff(win, A_REVERSE);
+    wattroff(win, COLOR_PAIR(3));
 
     wrefresh(win);
 
@@ -158,9 +154,9 @@ void WeeklyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events,
     }
     for(const Event * e : events) {
         if(showAll)
-            wprintw(win, "%s\n", e->toDays().c_str());
+            e->renderInDays(win);
         else    
-            wprintw(win, "%s\n", e->toHours().c_str());
+            e->renderInHours(win);
 
         // wprintw(win, "%s\n", e->ge);
     }
@@ -237,14 +233,14 @@ void MonthlyCalendar::display(WINDOW * win, const Datetime & date, int selected)
 
 
     if (selected == 0) {
-        wattron(win, A_REVERSE);
+        wattron(win, COLOR_PAIR(3));
         mvwprintw(win,2 + paddingTop, MAX_COLS/2-12, "< Calendar - %d/%d >", month, year);
     }
     else {
-        wattroff(win, A_REVERSE);
+        wattroff(win, COLOR_PAIR(3));
         mvwprintw(win,2 + paddingTop, MAX_COLS/2-10, "Calendar - %d/%d", month, year);
     }
-    wattroff(win, A_REVERSE);
+    wattroff(win, COLOR_PAIR(3));
 
     mvwprintw(win,4 + paddingTop , 4, " Sun Mon Tue Wed Thu Fri Sat");
 
@@ -258,10 +254,10 @@ void MonthlyCalendar::display(WINDOW * win, const Datetime & date, int selected)
 
     for (int i = 1; i <= numDays; ++i) {
         if(selected == i) {
-            wattron(win, A_REVERSE);
+            wattron(win, COLOR_PAIR(3));
         }
         mvwprintw(win, row + paddingTop, col + paddingLeft, "%3d", i);
-        wattroff(win, A_REVERSE);
+        wattroff(win, COLOR_PAIR(3));
         col += 4;
 
         if ((i + startDay) % 7 == 0) {
@@ -288,9 +284,9 @@ void MonthlyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events
     }
     for(const Event * e : events) {
         if(showAll)
-            wprintw(win, "%s\n", e->toDays().c_str());
+            e->renderInDays(win);
         else    
-            wprintw(win, "%s\n", e->toHours().c_str());
+            e->renderInHours(win);
 
         // wprintw(win, "%s\n", e->ge);
     }

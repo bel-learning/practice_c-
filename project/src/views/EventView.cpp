@@ -7,8 +7,8 @@
 using namespace std;
 
 string getInput(WINDOW * win) {
-    int COLS = getmaxy(win);
-    WINDOW * inWindow = subwin(win, 1, COLS, 3,2);
+    int COLS = getmaxx(win);
+    WINDOW * inWindow = subwin(win, 4, COLS-2, 3,2);
     int ch;
     string input;
     
@@ -52,7 +52,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
     int MAX_ROWS, MAX_COLS;
     getmaxyx(main, MAX_ROWS, MAX_COLS);
     wattron(main, A_UNDERLINE);
-    mvwprintw(main, MAX_ROWS-2, MAX_COLS-15, "ESC TO CANCEL:");
+    mvwprintw(main, MAX_ROWS-2, MAX_COLS-24, "WRITE EXIT TO CANCEL:");
     wattroff(main, A_UNDERLINE);
     Event * event = nullptr;
 
@@ -72,7 +72,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         return 0;
     }
     string description = promptInput(bWindow, "Description:");
-    if(title == "exit") {
+    if(description == "exit") {
         clear();
         delwin(bWindow);
 
@@ -81,7 +81,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
     
     
     string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly):");
-     if(title == "exit") {
+     if(repeatFormatted == "exit") {
         clear();
         delwin(bWindow);
         return 0;
@@ -89,7 +89,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
     Event::Repeat repeat = stringToRepeat(repeatFormatted);
     if(type == "event" || type == "") {
         string location = promptInput(bWindow, "Location:");
-        if(title == "exit") {
+        if(location == "exit") {
             clear();
             delwin(bWindow);
             return 0;
@@ -101,7 +101,7 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
             return 0;
         }
         string duration = promptInput(bWindow, "Duration (30, in mins):");
-        if(timeStart == "exit") {
+        if(duration == "exit") {
             clear();
             delwin(bWindow);
             return 0;
@@ -110,7 +110,48 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         event = new NormalEvent(title, description, repeat, location, start, calculateEndtime(start, static_cast<long long>(stoi(duration))));
         storage->addEvent(event);
     }
-    
+
+    if(type == "task") {
+        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
+        if(timeStart == "exit") {
+            clear();
+            delwin(bWindow);
+            return 0;
+        }
+        string duration = promptInput(bWindow, "Duration (30, in mins):");
+        if(duration == "exit") {
+            clear();
+            delwin(bWindow);
+            return 0;
+        }
+
+        string finished;
+        do {
+            finished = promptInput(bWindow, "Finished or not (1 or 0)*:");
+        }
+        while(finished.empty());
+        if(finished == "exit") {
+            clear();
+            delwin(bWindow);
+            return 0;
+        }
+        bool finishedBool = finished[0] == '1' ? true : false;
+        Datetime start(timeStart);
+        event = new Task(title, description, repeat, start, calculateEndtime(start, static_cast<long long>(stoi(duration))), finishedBool);
+
+        storage->addEvent(event);
+    }
+    if(type == "deadline") {
+        string timeEnd = promptInput(bWindow, "End time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
+        if(timeEnd == "exit") {
+            clear();
+            delwin(bWindow);
+            return 0;
+        }
+        event = new Deadline(title, description, repeat, timeEnd);
+        
+        storage->addEvent(event);
+    }
 
 
     delwin(bWindow);

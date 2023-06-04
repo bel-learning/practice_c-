@@ -1,3 +1,5 @@
+#ifndef STATE_H
+#define STATE_H
 enum MainState {
     MenuView, CalendarView, EventView
 };
@@ -8,3 +10,4 @@ enum Menu {
     SQuit = 4
 };
 
+#endif // STATE_H

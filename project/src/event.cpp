@@ -56,34 +56,19 @@ bool NormalEvent::insideInterval(const Datetime & start, const Datetime & end) c
     return false;
 }
 
-
-
 void NormalEvent::display() {};
 
 Event * NormalEvent::makeCopy() const {
     return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, m_Start, m_End);
 };
 
-string NormalEvent::toHours() const {
-    // str.append()
-    stringstream ss;
-    ss << std::setfill('0');  // Set fill character to '0' if the hour/minute is single digit
-    ss << std::setw(2) << m_Start.hour << ":" << std::setw(2) << m_Start.minute << "-"
-       << std::setw(2) << m_End.hour << ":" << std::setw(2) << m_End.minute;
-    // str.append(m_Start.toString() + "\n");
-    // str.append(m_End.toString() + "\n");
-    ss << " " << getTitle();
-    return ss.str();
+void NormalEvent::renderInHours(WINDOW * win) const {
+    wprintw(win, "%02d:%02d-%02d:%02d %s\n", m_Start.hour, m_Start.minute, m_End.hour, m_End.minute, getTitle().c_str());
+    wrefresh(win);
 };
-string NormalEvent::toDays() const {
-    // str.append()
-    stringstream ss;
-    ss << std::setfill('0');  // Set fill character to '0' if the hour/minute is single digit
-    ss << std::setw(2) << m_Start.day << " ";
-    ss.clear(); 
-    ss << getMonthName(m_Start.month);
-    ss << " : " << getTitle();
-    return ss.str();
+void NormalEvent::renderInDays(WINDOW * win) const {
+    wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
+    wrefresh(win);
 };
 
 
@@ -98,20 +83,90 @@ Datetime NormalEvent::getCompareDate() const {
 };
 
 
+Task::Task(const string & title, const string & description, Repeat repeat, const Datetime & start, const Datetime & end, bool finished)
+    : Event(title, description, repeat), m_Start(start), m_End(end), m_Finished(finished) {};
 
-// void NormalEvent::display() {};
+void Task::renderInHours(WINDOW * win) const {
+    // str.append()
+    if(m_Finished)
+        wattron(win, COLOR_PAIR(1));
+    else 
+        wattron(win, COLOR_PAIR(2));
+    wprintw(win, "%02d:%02d-%02d:%02d %s\n", m_Start.hour, m_Start.minute, m_End.hour, m_End.minute, getTitle().c_str());
+    wattroff(win, COLOR_PAIR(1));
+    wattroff(win, COLOR_PAIR(2));
 
-// Event * NormalEvent::makeCopy() const {
-//     return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, m_Start, m_End);
-// };
+    wrefresh(win);
+};
+void Task::renderInDays(WINDOW * win) const {
+    if(m_Finished)
+        wattron(win, COLOR_PAIR(1));
+    else 
+        wattron(win, COLOR_PAIR(2));
+    wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
+    wattroff(win, COLOR_PAIR(1));
+    wattroff(win, COLOR_PAIR(2));
 
-// bool NormalEvent::insideInterval(const Datetime & start, const Datetime & end) const {
-//    return true
-// }
+
+    wrefresh(win);
+};
+
+Event * Task::makeCopy() const {
+    return new Task(this->getTitle(), this->getDescription(), this->getRepeat(), m_Start, m_End, m_Finished);
+}
+
+bool Task::insideInterval(const Datetime & start, const Datetime & end) const {
+    if(m_Start >= start && m_End <= end)
+        return true;
+    return false;
+}
+
+void Task::display() {};
+
+bool Task::isLowerThan(const Event * e) const {
+    Datetime selfDate = this->getCompareDate();
+    Datetime otherDate = e->getCompareDate();
+    return selfDate < otherDate;
+};
+Datetime Task::getCompareDate() const {
+    return m_Start;
+};
+
+// Deadline::Deadline(const string & formatted) {}
+Deadline::Deadline(const string & title, const string & description, Repeat repeat, const Datetime & end)
+    : Event(title, description, repeat), m_End(end) {};
+
+Event * Deadline::makeCopy() const {
+    return new Deadline(this->getTitle(), this->getDescription(), this->getRepeat(), m_End);
+};
+
+bool Deadline::insideInterval(const Datetime & start, const Datetime & end) const {
+    if(m_End >= start && m_End <= end)
+        return true;
+    return false;
+};
+void Deadline::renderInHours(WINDOW * win) const {
+    wattron(win, COLOR_PAIR(4));
+    wprintw(win, "!%02d:%02d: %s\n", m_End.hour, m_End.minute, getTitle().c_str());
+    wattroff(win, COLOR_PAIR(4));
+    wrefresh(win);
+};
+void Deadline::renderInDays(WINDOW * win) const {
+    wattron(win, COLOR_PAIR(4));
+    wprintw(win, "!%02d %s : %s\n", m_End.day, getMonthName(m_End.month).c_str(), getTitle().c_str());
+    wattroff(win, COLOR_PAIR(4));
+    wrefresh(win);
+};
 
 
-// void NormalEvent::display() {};
+void Deadline::display() {
 
-// Event * NormalEvent::makeCopy() const {
-//     return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, m_Start, m_End);
-// };
+};
+bool Deadline::isLowerThan(const Event * e) const {
+    Datetime selfDate = this->getCompareDate();
+    Datetime otherDate = e->getCompareDate();
+    return selfDate < otherDate;
+};
+Datetime Deadline::getCompareDate() const {
+    return m_End;
+};

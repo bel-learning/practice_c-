@@ -89,11 +89,11 @@ Datetime::Datetime(const std::string & formatted) {
         if(formatted[i] == '-')
             occur++;
     }
-    if(occur == 3) {
+    if(occur == 4) {
         std::istringstream iss(formatted);
         std::string token;
         // Parse the date and time components
-         std::getline(iss, token, '-');
+        std::getline(iss, token, '-');
         if (!token.empty())
             year = std::stoi(token);
    

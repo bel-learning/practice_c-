@@ -27,11 +27,28 @@ void addDummyData(EventDictionary * storage) {
     end.hour = 14;
     storage->addEvent(new NormalEvent("Study sap", "...", Event::Repeat::Monthly, "nowhere", start, end));
 
-    start.day = 4;
+    start.day = 5;
     start.hour = 14;
-    end.day = 4;
+    end.day = 5;
     end.hour = 15;
     storage->addEvent(new NormalEvent("Study pa2", "...", Event::Repeat::Monthly, "nowhere", start, end));
+
+    start.day = 4;
+    start.hour = 20;
+    end.day = 4;
+    end.hour = 21;
+    storage->addEvent(new Task("Finish pa2", "...", Event::Repeat::Monthly,  start, end, true));
+
+    start.day = 4;
+    start.hour = 2;
+    end.day = 4;
+    end.hour = 2;
+    storage->addEvent(new Task("Finish la2", "...", Event::Repeat::Monthly,  start, end, false));
+
+ 
+    end.day = 4;
+    end.hour = 23;
+    storage->addEvent(new Deadline("Complete project", "...", Event::Repeat::Monthly,  end));
 
 }
 
@@ -49,6 +66,11 @@ int main() {
     }
     noecho();
     keypad(mainWin, TRUE);
+    start_color();
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
+    init_pair(3, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 
 
     bool running = true;
