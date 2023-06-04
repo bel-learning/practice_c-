@@ -22,12 +22,10 @@ void addDummyData(EventDictionary * storage) {
     start.hour = 12;
     end.hour = 13;
 
-    storage->addEvent(new NormalEvent("Meeting1", "...", Event::Repeat::Monthly, "nowhere", start, end));
     storage->addRepeatEvent(new NormalEvent("Meeting1", "...", Event::Repeat::Monthly, "nowhere", start, end));
 
     start.hour = 13;
     end.hour = 14;
-    storage->addEvent(new NormalEvent("Study sap", "...", Event::Repeat::Monthly, "nowhere", start, end));
     storage->addRepeatEvent(new NormalEvent("Study sap", "...", Event::Repeat::Monthly, "nowhere", start, end));
 
     
@@ -36,25 +34,24 @@ void addDummyData(EventDictionary * storage) {
     start.hour = 14;
     end.day = 5;
     end.hour = 15;
-    storage->addEvent(new NormalEvent("Study pa2", "...", Event::Repeat::Weekly, "nowhere", start, end));
     storage->addRepeatEvent(new NormalEvent("Study pa2", "...", Event::Repeat::Weekly, "nowhere", start, end));
 
     start.day = 4;
     start.hour = 20;
     end.day = 4;
     end.hour = 21;
-    storage->addEvent(new Task("Finish pa2", "...", Event::Repeat::Monthly,  start, end, true));
+    storage->addEvent(new Task("Finish pa2", "...", Event::Repeat::None,  start, end, true));
 
     start.day = 4;
     start.hour = 2;
     end.day = 4;
     end.hour = 2;
-    storage->addEvent(new Task("Finish la2", "...", Event::Repeat::BiWeekly,  start, end, false));
+    storage->addEvent(new Task("Finish la2", "...", Event::Repeat::None,  start, end, false));
 
  
     end.day = 4;
     end.hour = 23;
-    storage->addEvent(new Deadline("Complete project", "...", Event::Repeat::Monthly,  end));
+    storage->addEvent(new Deadline("Complete project", "...", Event::Repeat::None,  end));
 
 }
 

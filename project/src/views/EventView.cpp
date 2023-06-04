@@ -108,7 +108,6 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         }
         Datetime start(timeStart);
         event = new NormalEvent(title, description, repeat, location, start, calculateEndtime(start, static_cast<long long>(stoi(duration))));
-        storage->addEvent(event);
 
     }
 
@@ -139,8 +138,6 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
         bool finishedBool = finished[0] == '1' ? true : false;
         Datetime start(timeStart);
         event = new Task(title, description, repeat, start, calculateEndtime(start, static_cast<long long>(stoi(duration))), finishedBool);
-
-        storage->addEvent(event);
     }
     if(type == "deadline") {
         string timeEnd = promptInput(bWindow, "End time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
@@ -150,12 +147,12 @@ int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {
             return 0;
         }
         event = new Deadline(title, description, repeat, timeEnd);
-        
-        storage->addEvent(event);
     }
 
     if(repeat != Event::Repeat::None)
-            storage->addRepeatEvent(event);
+        storage->addRepeatEvent(event);
+    else 
+        storage->addEvent(event);
     delete event;
     delwin(bWindow);
     return 1;

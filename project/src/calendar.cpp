@@ -71,7 +71,9 @@ const vector<Event * > DailyCalendar::getEvents(const Datetime & start, bool sho
     // Finding the repeatable events are within the interval
     for(const Event * e : m_Dictionary->getRepeatEvents()) {
         if(e->getCompareDate() < endDate) {
-            
+            if(e->insideInterval(startDate, endDate)) {
+                dailyEvents.push_back(e->makeCopy());
+            }
             Event * newEvent = e->findNextRepeatable();
             Event * toDelete = newEvent;
             while(newEvent->getCompareDate() < endDate) {
@@ -85,7 +87,9 @@ const vector<Event * > DailyCalendar::getEvents(const Datetime & start, bool sho
             delete toDelete;
         }
         else {
-            
+            if(e->insideInterval(startDate, endDate)) {
+                dailyEvents.push_back(e->makeCopy());
+            }
             Event * newEvent = e->findPreviousRepeatable();
             Event * toDelete = newEvent;
             while(newEvent->getCompareDate() > startDate) {
@@ -221,7 +225,9 @@ const vector<Event * > WeeklyCalendar::getEvents(const Datetime & start, bool sh
     endDate.second = 59;    
     for(const Event * e : m_Dictionary->getRepeatEvents()) {
         if(e->getCompareDate() < endDate) {
-            
+            if(e->insideInterval(startDate, endDate)) {
+                eventsInInterval.push_back(e->makeCopy());
+            }
             Event * newEvent = e->findNextRepeatable();
             Event * toDelete = newEvent;
             while(newEvent->getCompareDate() < endDate) {
@@ -235,7 +241,9 @@ const vector<Event * > WeeklyCalendar::getEvents(const Datetime & start, bool sh
             delete toDelete;
         }
         else {
-            
+            if(e->insideInterval(startDate, endDate)) {
+                eventsInInterval.push_back(e->makeCopy());
+            }
             Event * newEvent = e->findPreviousRepeatable();
             Event * toDelete = newEvent;
             while(newEvent->getCompareDate() > startDate) {
@@ -380,7 +388,9 @@ const vector<Event * > MonthlyCalendar::getEvents(const Datetime & start, bool s
 
     for(const Event * e : m_Dictionary->getRepeatEvents()) {
         if(e->getCompareDate() < endDate) {
-            
+            if(e->insideInterval(startDate, endDate)) {
+                eventsInInterval.push_back(e->makeCopy());
+            }
             Event * newEvent = e->findNextRepeatable();
             Event * toDelete = newEvent;
             while(newEvent->getCompareDate() < endDate) {
@@ -394,7 +404,9 @@ const vector<Event * > MonthlyCalendar::getEvents(const Datetime & start, bool s
             delete toDelete;
         }
         else {
-            
+            if(e->insideInterval(startDate, endDate)) {
+                eventsInInterval.push_back(e->makeCopy());
+            }
             Event * newEvent = e->findPreviousRepeatable();
             Event * toDelete = newEvent;
             while(newEvent->getCompareDate() > startDate) {
