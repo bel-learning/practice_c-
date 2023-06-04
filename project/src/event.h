@@ -25,8 +25,8 @@ class Event {
     virtual void display() = 0;
     virtual bool insideInterval(const Datetime & start, const Datetime & end) const = 0;
     virtual Event * makeCopy() const = 0;
-    virtual void renderInHours(WINDOW * win) const = 0;
-    virtual void renderInDays(WINDOW * win) const = 0;
+    virtual void renderInHours(WINDOW * win, bool colored = true) const = 0;
+    virtual void renderInDays(WINDOW * win, bool colored = true) const = 0;
     virtual stringstream toFile() const = 0;
     virtual Event * findNextRepeatable() const = 0;
     virtual Event * findPreviousRepeatable() const = 0;
@@ -60,8 +60,8 @@ class NormalEvent : public Event {
     Event * makeCopy() const override;
     stringstream toFile() const  override;
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
-    void renderInHours(WINDOW * win) const override;
-    void renderInDays(WINDOW * win) const override;
+    void renderInHours(WINDOW * win, bool colored = true) const override;
+    void renderInDays(WINDOW * win, bool colored = true) const override;
 
     void display() override;
     bool isLowerThan(const Event * e) const override;
@@ -82,8 +82,8 @@ class Task : public Event {
     
     Event * makeCopy() const override;
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
-    void renderInHours(WINDOW * win) const override;
-    void renderInDays(WINDOW * win) const override;
+    void renderInHours(WINDOW * win, bool colored = true) const override;
+    void renderInDays(WINDOW * win, bool colored = true) const override;
     stringstream toFile() const  override;
     Task formattedToTask(const string & formatted) const;
 
@@ -109,8 +109,8 @@ class Deadline : public Event {
     
     Event * makeCopy() const override;
     bool insideInterval(const Datetime & start, const Datetime & end) const override;
-    void renderInHours(WINDOW * win) const override;
-    void renderInDays(WINDOW * win) const override;
+    void renderInHours(WINDOW * win, bool colored = true) const override;
+    void renderInDays(WINDOW * win, bool colored = true) const override;
     stringstream toFile() const  override;
 
     Event * findNextRepeatable() const override;
@@ -123,7 +123,6 @@ class Deadline : public Event {
     private:
     Datetime m_End;
 };
-
 
 
 #endif // EVENT_H

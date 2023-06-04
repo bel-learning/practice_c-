@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -Wall -fsanitize=address -lncurses -g
+CFLAGS = -std=c++17 -Wall -fsanitize=address 
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -14,18 +14,28 @@ SRCS = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
 OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 
 # Specify the target executable
-TARGET = calendar
+TARGET = baljibil
 
-all: $(BUILD_DIR) $(TARGET)
+all: compile
+
+compile: $(BUILD_DIR) $(TARGET)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lncurses
 	
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ 
+	$(CC) $(CFLAGS) $^ -o $@ -lncurses
 
 $(BUILD_DIR):
 	mkdir -p $(dir $(OBJS))
 
+
+run:
+	./$(TARGET)
+
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
+	rm -rf doc/
+doc:
+	doxygen Doxyfile 
+	mv doc/html/* doc/

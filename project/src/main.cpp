@@ -13,6 +13,7 @@
 #include "views/EventView.h"
 #include "views/ImportView.h"
 #include "views/ExportView.h"
+#include "views/SearchView.h"
 #include "event.h"
 
 using namespace std;
@@ -57,7 +58,7 @@ void addDummyData(EventDictionary * storage) {
 int main() {
     Calendar * cal = nullptr;
     EventDictionary storage;
-    // addDummyData(&storage);
+    addDummyData(&storage);
     MainState state;
     // int row = 20;
     // int col = 80;
@@ -152,6 +153,13 @@ int main() {
                 clear();
                 box(mainWin, 0,0);
                 res = GetExportView(mainWin, &storage);
+                state = MainState::MenuView;
+                break;
+            case MainState::SearchView:
+                refresh();
+                clear();
+                box(mainWin, 0,0);
+                res = GetSearchView(mainWin, &storage);
                 state = MainState::MenuView;
                 break;
         }

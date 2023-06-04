@@ -50,7 +50,7 @@ void DailyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events, 
         wprintw(win, "No events\n");
     }
     for(const Event * e : events) {
-        e->renderInHours(win);
+        e->renderInHours(win, true);
     }
     wrefresh(win);
 }
@@ -192,9 +192,9 @@ void WeeklyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events,
     }
     for(const Event * e : events) {
         if(showAll)
-            e->renderInDays(win);
+            e->renderInDays(win, true);
         else    
-            e->renderInHours(win);
+            e->renderInHours(win, true);
 
         // wprintw(win, "%s\n", e->ge);
     }
@@ -356,9 +356,9 @@ void MonthlyCalendar::displayEvents(WINDOW * win, const vector<Event *> & events
     }
     for(const Event * e : events) {
         if(showAll)
-            e->renderInDays(win);
+            e->renderInDays(win, true);
         else    
-            e->renderInHours(win);
+            e->renderInHours(win, true);
 
         // wprintw(win, "%s\n", e->ge);
     }

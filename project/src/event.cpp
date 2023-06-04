@@ -86,11 +86,11 @@ Event * NormalEvent::makeCopy() const {
     return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, m_Start, m_End);
 };
 
-void NormalEvent::renderInHours(WINDOW * win) const {
+void NormalEvent::renderInHours(WINDOW * win, bool colored) const {
     wprintw(win, "%02d:%02d-%02d:%02d %s\n", m_Start.hour, m_Start.minute, m_End.hour, m_End.minute, getTitle().c_str());
     wrefresh(win);
 };
-void NormalEvent::renderInDays(WINDOW * win) const {
+void NormalEvent::renderInDays(WINDOW * win, bool colored) const {
     wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
     wrefresh(win);
 };
@@ -164,23 +164,28 @@ Task::Task(const string & title, const string & description, Repeat repeat, cons
     m_End = endTime;
     m_Finished = finished;
 }
-void Task::renderInHours(WINDOW * win) const {
+void Task::renderInHours(WINDOW * win, bool colored) const {
     // str.append()
-    if(m_Finished)
-        wattron(win, COLOR_PAIR(1));
-    else 
-        wattron(win, COLOR_PAIR(2));
+    if(colored) {
+        if(m_Finished)
+            wattron(win, COLOR_PAIR(1));
+        else 
+            wattron(win, COLOR_PAIR(2));
+    }
+    
     wprintw(win, "%02d:%02d-%02d:%02d %s\n", m_Start.hour, m_Start.minute, m_End.hour, m_End.minute, getTitle().c_str());
     wattroff(win, COLOR_PAIR(1));
     wattroff(win, COLOR_PAIR(2));
 
     wrefresh(win);
 };
-void Task::renderInDays(WINDOW * win) const {
-    if(m_Finished)
-        wattron(win, COLOR_PAIR(1));
-    else 
-        wattron(win, COLOR_PAIR(2));
+void Task::renderInDays(WINDOW * win, bool colored) const {
+    if(colored) {
+        if(m_Finished)
+            wattron(win, COLOR_PAIR(1));
+        else 
+            wattron(win, COLOR_PAIR(2));
+    }
     wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
     wattroff(win, COLOR_PAIR(1));
     wattroff(win, COLOR_PAIR(2));
@@ -264,14 +269,16 @@ bool Deadline::insideInterval(const Datetime & start, const Datetime & end) cons
         return true;
     return false;
 };
-void Deadline::renderInHours(WINDOW * win) const {
-    wattron(win, COLOR_PAIR(4));
+void Deadline::renderInHours(WINDOW * win, bool colored) const {
+    if(colored)
+        wattron(win, COLOR_PAIR(4));
     wprintw(win, "!%02d:%02d: %s\n", m_End.hour, m_End.minute, getTitle().c_str());
     wattroff(win, COLOR_PAIR(4));
     wrefresh(win);
 };
-void Deadline::renderInDays(WINDOW * win) const {
-    wattron(win, COLOR_PAIR(4));
+void Deadline::renderInDays(WINDOW * win, bool colored) const {
+    if(colored)
+        wattron(win, COLOR_PAIR(4));
     wprintw(win, "!%02d %s : %s\n", m_End.day, getMonthName(m_End.month).c_str(), getTitle().c_str());
     wattroff(win, COLOR_PAIR(4));
     wrefresh(win);
