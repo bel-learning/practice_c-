@@ -6,45 +6,6 @@
 
 using namespace std;
 
-string getInput(WINDOW * win) {
-    int COLS = getmaxx(win);
-    WINDOW * inWindow = subwin(win, 4, COLS-2, 3,2);
-    int ch;
-    string input;
-    
-    while ((ch = getch()) != '\n') {
-        if(ch == KEY_BACKSPACE || ch == KEY_DC || ch == 127 ) {
-            if(!input.empty())
-                input.pop_back();
-        }
-        else if(ch == KEY_ENTER || ch == '\n') {
-            break;
-        }
-        // ESC
-        else if(ch == 27) {
-            input = "exit";
-            break;
-        }
-        else 
-            input.push_back(static_cast<char>(ch));
-        wclear(inWindow);
-        wprintw(inWindow, "> ");
-        wprintw(inWindow, input.c_str());
-        wrefresh(inWindow);
-    }
-    wclear(inWindow);
-    delwin(inWindow);
-    return input;
-}
-string promptInput(WINDOW * win, string question) {
-    wattron(win, A_BOLD);
-    mvwprintw(win,0,0, question.c_str());
-    wattroff(win, A_BOLD);
-
-    wrefresh(win);
-    wclear(win);
-    return getInput(win);
-}
 // Event * createNewEven
 
 int AddEventView(WINDOW * main, Calendar * cal, EventDictionary * storage) {

@@ -20,6 +20,7 @@ int getDaysInMonth(const Datetime & time);
 Datetime increaseMonth(Datetime & date);
 Datetime decreaseMonth(Datetime & date);
 
+void writeToDebug(const string & out, ofstream & file);
 void writeToDebug(const string & out);
 void writeToDebug(const int & out);
 void writeToDebug(const char & out);
@@ -37,5 +38,9 @@ Datetime startOfNextWeek(const Datetime & dt);
 Datetime endOfCurrentWeek(const Datetime & dt);
 Datetime startOfPreviosWeek(const Datetime & dt);
 Datetime startOfCurrentWeek(const Datetime & dt);
+
+
+string getInput(WINDOW * win);
+string promptInput(WINDOW * win, string question);
 
 #endif // UTIL_H

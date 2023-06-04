@@ -57,7 +57,7 @@ void addDummyData(EventDictionary * storage) {
 int main() {
     Calendar * cal = nullptr;
     EventDictionary storage;
-    addDummyData(&storage);
+    // addDummyData(&storage);
     MainState state;
     // int row = 20;
     // int col = 80;

@@ -16,6 +16,7 @@ class Event {
     Event(const string & title, const string & description, Repeat repeat);
     // Copy constructor
     Event(const Event & event);
+    Event(const string & formatted);
     // Assignment operator
 
     friend bool operator == (const Event & event1, const Event & event2);
@@ -47,8 +48,10 @@ class NormalEvent : public Event {
     NormalEvent(const string & title, const string & description, Repeat repeat, const string & location, const Datetime & start, const Datetime & end);
     // Copy constructor
     NormalEvent(const NormalEvent & event);
+    NormalEvent(const string & title, const string & description, Repeat repeat, const string & formatted);
     // Assignment operator
     NormalEvent operator = (const NormalEvent & event);
+    
 
     ~NormalEvent() {};
     Event * findNextRepeatable() const override;
@@ -72,8 +75,9 @@ class NormalEvent : public Event {
 
 class Task : public Event {
     public:
-    Task(const string & formatted);
     Task(const string & title, const string & description, Repeat repeat, const Datetime & start, const Datetime & end, bool finished);
+    Task(const string & title, const string & description, Repeat repeat,const string & formatted);
+
     ~Task() {};
     
     Event * makeCopy() const override;
@@ -81,6 +85,7 @@ class Task : public Event {
     void renderInHours(WINDOW * win) const override;
     void renderInDays(WINDOW * win) const override;
     stringstream toFile() const  override;
+    Task formattedToTask(const string & formatted) const;
 
     Event * findNextRepeatable() const override;
     Event * findPreviousRepeatable() const override;
@@ -97,8 +102,9 @@ class Task : public Event {
 
 class Deadline : public Event {
     public:
-    Deadline(const string & formatted);
     Deadline(const string & title, const string & description, Repeat repeat, const Datetime & end);
+    Deadline(const string & title, const string & description, Repeat repeat, const string & formatted);
+
     ~Deadline() {};
     
     Event * makeCopy() const override;

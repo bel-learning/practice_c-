@@ -5,12 +5,44 @@
 #include<string>
 #include <iostream>
 #include <fstream>
+#include <ncurses.h>
 Datetime getCurrentDateTime() {
     auto now = chrono::system_clock::now();
     time_t currentTime = chrono::system_clock::to_time_t(now);
     tm * tmTime = localtime(&currentTime);
     return Datetime(tmTime);
 };
+
+string getInput(WINDOW * win) {
+    int COLS = getmaxx(win);
+    WINDOW * inWindow = subwin(win, 4, COLS-2, 3,2);
+    int ch;
+    string input;
+    
+    while ((ch = getch()) != '\n') {
+        if(ch == KEY_BACKSPACE || ch == KEY_DC || ch == 127 ) {
+            if(!input.empty())
+                input.pop_back();
+        }
+        else if(ch == KEY_ENTER || ch == '\n') {
+            break;
+        }
+        // ESC
+        else if(ch == 27) {
+            input = "exit";
+            break;
+        }
+        else 
+            input.push_back(static_cast<char>(ch));
+        wclear(inWindow);
+        wprintw(inWindow, "> ");
+        wprintw(inWindow, input.c_str());
+        wrefresh(inWindow);
+    }
+    wclear(inWindow);
+    delwin(inWindow);
+    return input;
+}
 
 std::string getDayOfWeek(int index) {
     switch (index) {
@@ -68,6 +100,11 @@ int getDaysInMonth(const Datetime & date) {
     }
     return numDays;
 }   
+
+void writeToDebug(const string & out, ofstream & file) {
+    file << out << endl;
+    return;
+}
 
 void writeToDebug(const string & out) {
     ofstream file("../debugger.txt");
@@ -203,13 +240,30 @@ Datetime secondsToDatetime(long long totalSeconds) {
 }
 
 Event::Repeat stringToRepeat(const string & formatted) {
-    if(formatted == "") return Event::Repeat::None;
+    if(formatted == "none" || formatted == "") return Event::Repeat::None;
     if(formatted == "weekly") return Event::Repeat::Weekly;
     if(formatted == "biweekly") return Event::Repeat::BiWeekly;
     if(formatted == "monthly") return Event::Repeat::Monthly;
     if(formatted == "daily") return Event::Repeat::Daily;
     if(formatted == "yearly") return Event::Repeat::Yearly;
     return Event::Repeat::Yearly;
+}
+
+string repeatToString(const Event::Repeat & repeat) {
+    switch(repeat) {
+        case Event::Repeat::Yearly:
+            return "yearly";
+        case Event::Repeat::Monthly:
+            return "monthly";
+        case Event::Repeat::BiWeekly:
+            return "biweekly";
+        case Event::Repeat::Weekly:
+            return "weekly";
+        case Event::Repeat::Daily:
+            return "daily";
+        default:
+            return "none";
+    }
 }
 
 Datetime startOfCurrentWeek(const Datetime & dt) {
@@ -268,19 +322,13 @@ long long repeatToSeconds(const Event::Repeat & repeat) {
             return 0;
     }
 }
-string repeatToString(const Event::Repeat & repeat) {
-    switch(repeat) {
-        case Event::Repeat::Yearly:
-            return "yearly";
-        case Event::Repeat::Monthly:
-            return "monthly";
-        case Event::Repeat::BiWeekly:
-            return "biweekly";
-        case Event::Repeat::Weekly:
-            return "weekly";
-        case Event::Repeat::Daily:
-            return "daily";
-        default:
-            return "none";
-    }
+
+string promptInput(WINDOW * win, string question) {
+    wattron(win, A_BOLD);
+    mvwprintw(win,0,0, question.c_str());
+    wattroff(win, A_BOLD);
+
+    wrefresh(win);
+    wclear(win);
+    return getInput(win);
 }

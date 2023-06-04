@@ -49,6 +49,30 @@ NormalEvent::NormalEvent(const Event & event, const string & location, Datetime 
 NormalEvent::NormalEvent(const string & title, const string & description, Repeat repeat, const string & location, const Datetime & start, const Datetime & end) 
     : Event(title, description, repeat), m_Location(location), m_Start(start), m_End(end) {};
 
+
+NormalEvent::NormalEvent(const string & title, const string & description, Repeat repeat, const string & formatted) 
+: Event(title, description, repeat) {
+    std::istringstream iss(formatted);
+    std::string token;
+ 
+    std::getline(iss, token, ',');
+    string location = token;
+
+    std::getline(iss, token, ',');
+    string startDateFormatted = token;
+    Datetime startTime(startDateFormatted);
+
+    std::getline(iss, token, ',');
+    string endDateFormatted = token;
+    Datetime endTime(endDateFormatted);
+
+    m_Location = location;
+    m_Start = startTime;
+    m_End = endTime;
+  
+}
+
+
 // NormalEvent::NormalEvent(const NormalEvent & event) 
 bool NormalEvent::insideInterval(const Datetime & start, const Datetime & end) const {
     if(m_Start >= start && m_End <= end)
@@ -104,8 +128,8 @@ Datetime NormalEvent::getCompareDate() const {
 };
 stringstream NormalEvent::toFile() const {
     stringstream out;
-    out << "deadline," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
-    out << m_Location << "," << m_Start.toFileString() << "," << m_End.toFileString() << ",";
+    out << "event," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
+    out << m_Location << "," << m_Start.toFileString() << "," << m_End.toFileString();
     return out;
 };
 
@@ -113,6 +137,33 @@ stringstream NormalEvent::toFile() const {
 Task::Task(const string & title, const string & description, Repeat repeat, const Datetime & start, const Datetime & end, bool finished)
     : Event(title, description, repeat), m_Start(start), m_End(end), m_Finished(finished) {};
 
+Task::Task(const string & title, const string & description, Repeat repeat, const string & formatted) 
+: Event(title, description, repeat) {
+    std::istringstream iss(formatted);
+    std::string token;
+    
+    std::getline(iss, token, ',');
+    string startDateFormatted = token;
+    Datetime startTime(startDateFormatted);
+
+    std::getline(iss, token, ',');
+    string endDateFormatted = token;
+    Datetime endTime(endDateFormatted);
+
+    std::getline(iss, token, ',');
+    string strDone = token;
+    bool finished = false;
+    if(!strDone.empty() && strDone[0] == '0') {
+        finished = false;
+    }
+    if(!strDone.empty() && strDone[0] == '1') {
+        finished = true;
+    }
+
+    m_Start = startTime;
+    m_End = endTime;
+    m_Finished = finished;
+}
 void Task::renderInHours(WINDOW * win) const {
     // str.append()
     if(m_Finished)
@@ -183,15 +234,26 @@ Event * Task::findPreviousRepeatable() const {
 
 stringstream Task::toFile() const {
     stringstream out;
-    out << "deadline," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
+    out << "task," << getTitle() << "," << getDescription() << "," << repeatToString(getRepeat()) << ",";
     out << m_Start.toFileString() << "," << m_End.toFileString() << "," << m_Finished;
     return out;
 };
 
 
-// Deadline::Deadline(const string & formatted) {}
 Deadline::Deadline(const string & title, const string & description, Repeat repeat, const Datetime & end)
     : Event(title, description, repeat), m_End(end) {};
+
+Deadline::Deadline(const string & title, const string & description, Repeat repeat, const string & formatted)
+    : Event(title, description, repeat)
+ {
+    std::istringstream iss(formatted);
+    std::string token;
+    std::getline(iss, token, ',');
+    string endDateFormatted = token;
+    Datetime endTime(endDateFormatted);
+
+    m_End = endTime;
+}
 
 Event * Deadline::makeCopy() const {
     return new Deadline(this->getTitle(), this->getDescription(), this->getRepeat(), m_End);
@@ -250,3 +312,5 @@ stringstream Deadline::toFile() const {
     out << m_End.toFileString();
     return out;
 };
+
+

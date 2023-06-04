@@ -223,6 +223,6 @@ bool Datetime::operator==(const Datetime& other) const {
 
 std::string Datetime::toFileString() const {
     string res;
-    res.append(to_string(year) + "-" + to_string(month) + "-" + to_string(day) + "-" + to_string(hour) + "-" + to_string(minute) + "-" + to_string(second));
+    res.append(to_string(year) + "-" + to_string(month) + "-" + to_string(day) + "-" + to_string(hour) + "-" + to_string(minute));
     return res;
 }
