@@ -1,3 +1,33 @@
-This is a calendar app done in ncurses. It has functionality of managing, import, exporting and displaying events.
-Features involve interacitve Daily, Weekly, Monthly calendar views, Importing and exporting events, Searching for events and 
-moving them in recommended places.
+Problem Statement:
+Develop a Command-Line Interface (CLI) calendar application that allows users to manage their events effectively. The application should support monthly, daily, and weekly views of the calendar, enabling users to add, delete, move, import, export, and search for events.
+
+Features:
+a. Calendar Views:
+
+Monthly View: Display a calendar for the selected month, highlighting the days with events.
+Daily View: Show a detailed view of events for a specific day.
+Weekly View: Present a week-long overview of events, spanning across multiple days.
+
+b. Event Management:
+
+Add Event: Allow users to create and schedule new events with details such as title, date, time, and optional description.
+Delete Event: Enable users to remove an existing event from the calendar.
+Move Event: Suggest X possible time slots for moving an event, considering the event's duration and the user's preferences.
+
+c. Import and Export:
+
+Import Calendar: Provide the ability to import events from custom source. (.cal)
+Export Calendar: Allow users to export their calendar and events to an iCalendar file for backup or sharing purposes.
+d. Event Search:
+
+Search Event: Allow users to search for specific events based on title. Display search results in a user-friendly format.
+
+User Interface:
+
+The application should have a command-line interface with appropriate commands and menus for accessing different features.
+Use clear and intuitive commands, along with helpful prompts and error messages, to guide users through the application.
+
+Input and Output:
+
+Users should be able to input commands and parameters through the command line to interact with the application.
+The application should provide clear and well-formatted output, including calendars, event details, search results, and success/error messages.

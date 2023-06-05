@@ -17,47 +17,10 @@
 
 using namespace std;
 
-void addDummyData(EventDictionary *storage)
-{
-    Datetime start = getCurrentDateTime();
-    Datetime end = getCurrentDateTime();
-    start.hour = 12;
-    end.hour = 13;
-
-    storage->addRepeatEvent(new NormalEvent("Meeting1", "...", Event::Repeat::Monthly, "nowhere", start, end));
-
-    start.hour = 13;
-    end.hour = 14;
-    storage->addRepeatEvent(new NormalEvent("Study sap", "...", Event::Repeat::Monthly, "nowhere", start, end));
-
-    start.day = 5;
-    start.hour = 14;
-    end.day = 5;
-    end.hour = 15;
-    storage->addRepeatEvent(new NormalEvent("Study pa2", "...", Event::Repeat::Weekly, "nowhere", start, end));
-
-    start.day = 4;
-    start.hour = 20;
-    end.day = 4;
-    end.hour = 21;
-    storage->addEvent(new Task("Finish pa2", "...", Event::Repeat::None, start, end, true));
-
-    start.day = 4;
-    start.hour = 2;
-    end.day = 4;
-    end.hour = 3;
-    storage->addEvent(new Task("Finish la2", "...", Event::Repeat::None, start, end, false));
-
-    end.day = 4;
-    end.hour = 23;
-    storage->addEvent(new Deadline("Complete project", "...", Event::Repeat::None, end));
-}
-
 int main()
 {
     Calendar *cal = nullptr;
     EventDictionary storage;
-    addDummyData(&storage);
     // Controls App main stage
     MainState state;
 

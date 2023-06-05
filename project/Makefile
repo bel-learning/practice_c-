@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17 -Wall -g -fsanitize=address 
+CFLAGS = -std=c++17 -Wall 
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -29,7 +29,11 @@ $(TARGET): $(OBJS)
 $(BUILD_DIR):
 	mkdir -p $(dir $(OBJS))
 
-
+test:	
+	$(CC) $(CFLAGS) ./examples/unit.test.cpp ./src/datetime.cpp ./src/util.cpp -lncurses -o test
+	./test
+	rm -rf test
+	echo "Test success"
 run:
 	./$(TARGET)
 
