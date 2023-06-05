@@ -7,3 +7,5 @@ test
 project/build/
 tmp/
 baljibil
+doc/
+debug.*

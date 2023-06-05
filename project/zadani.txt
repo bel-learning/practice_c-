@@ -1,1 +1,3 @@
 This is a calendar app done in ncurses. It has functionality of managing, import, exporting and displaying events.
+Features involve interacitve Daily, Weekly, Monthly calendar views, Importing and exporting events, Searching for events and 
+moving them in recommended places.

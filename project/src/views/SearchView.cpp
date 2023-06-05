@@ -139,7 +139,6 @@ int search(WINDOW *win, EventDictionary *storage)
             event->renderInDays(inWindow, false);
             wattroff(inWindow, COLOR_PAIR(3));
             i++;
-            // wprintw(inWindow, "\n");
         }
         wrefresh(inWindow);
 

@@ -125,7 +125,6 @@ Event *NormalEvent::findNextRepeatable() const
     long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
     newStartSec += repeatSec;
     newEndSec += repeatSec;
-    writeToDebug(Datetime(secondsToDatetime(newStartSec)).toString());
     return new NormalEvent(this->getTitle(), this->getDescription(), this->getRepeat(), m_Location, Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)));
 };
 Event *NormalEvent::findPreviousRepeatable() const
@@ -281,12 +280,13 @@ Event *Task::findNextRepeatable() const
 {
     Datetime newStart(m_Start);
     Datetime newEnd(m_End);
+    // Translate both to seconds
     long long newStartSec = newStart.toSeconds();
     long long newEndSec = newEnd.toSeconds();
     long long repeatSec = static_cast<long long>(repeatToSeconds(getRepeat()));
     newStartSec += repeatSec;
     newEndSec += repeatSec;
-
+    // Create new Event with new dates
     return new Task(this->getTitle(), this->getDescription(), this->getRepeat(), Datetime(secondsToDatetime(newStartSec)), Datetime(secondsToDatetime(newEndSec)), m_Finished);
 };
 Event *Task::findPreviousRepeatable() const

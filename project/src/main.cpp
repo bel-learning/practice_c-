@@ -45,7 +45,7 @@ void addDummyData(EventDictionary *storage)
     start.day = 4;
     start.hour = 2;
     end.day = 4;
-    end.hour = 2;
+    end.hour = 3;
     storage->addEvent(new Task("Finish la2", "...", Event::Repeat::None, start, end, false));
 
     end.day = 4;
@@ -86,10 +86,7 @@ int main()
     // Main APP LOOP
     while (running)
     {
-        // DEBUGGING PURPOSES
-        mvwprintw(mainWin, 1, 1, "state - %d", state);
-        mvwprintw(mainWin, 2, 1, "choice - %d", choice);
-        refresh();
+        
         // MAIN APP STATES
         switch (state)
         {

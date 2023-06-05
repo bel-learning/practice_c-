@@ -198,16 +198,19 @@ void WeeklyCalendar::print(WINDOW *win, const Datetime &date, int selected) cons
 
 void WeeklyCalendar::displayEvents(WINDOW *win, const vector<Event *> &events, bool showAll) const
 {
+    // Initializations
     wclear(win);
     int middle = getmaxx(win) / 2;
     wattron(win, A_BOLD);
     mvwprintw(win, 2, middle - 6, "Events\n\n");
     wattroff(win, A_BOLD);
 
+
     if (events.size() == 0)
     {
         wprintw(win, "No events\n");
     }
+    // Using polymorphism
     for (const Event *e : events)
     {
         if (showAll)
@@ -244,6 +247,7 @@ const vector<Event *> WeeklyCalendar::getEvents(const Datetime &start, bool show
     endDate.hour = 23;
     endDate.minute = 59;
     endDate.second = 59;
+    // Finding whether current interval we are in will have repeatables from before or after
     for (const Event *e : m_Dictionary->getRepeatEvents())
     {
         if (e->getCompareDate() < endDate)
@@ -287,6 +291,7 @@ const vector<Event *> WeeklyCalendar::getEvents(const Datetime &start, bool show
             delete toDelete;
         }
     }
+    // Just query normal events
     for (const Event *e : m_Dictionary->getEvents())
     {
         if (e->insideInterval(startDate, endDate))
@@ -299,6 +304,7 @@ const vector<Event *> WeeklyCalendar::getEvents(const Datetime &start, bool show
     vector<Event *> firstFifteenEvents;
     size_t len = eventsInInterval.size();
 
+    // Getting first 15 for screen size issues
     if (len > 15)
         len = 15;
 
@@ -356,6 +362,7 @@ void MonthlyCalendar::display(WINDOW *win, const Datetime &date, int selected) c
     int col = startDay * 4;
     int paddingLeft = 4;
 
+    // Printing the days
     for (int i = 1; i <= numDays; ++i)
     {
         if (selected == i)

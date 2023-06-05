@@ -28,6 +28,7 @@ string getInput(WINDOW *win)
     int ch;
     string input;
 
+    // WHILE ENTER OR ESC
     while ((ch = getch()) != '\n')
     {
         if (ch == KEY_BACKSPACE || ch == KEY_DC || ch == 127)
@@ -89,6 +90,7 @@ int dayIndexInWeek(const Datetime &time)
     static int t[] = {0, 3, 2, 5, 0, 3, 5, 1,
                       4, 6, 2, 4};
     year -= month < 3;
+    // Common way to calculate weekday index of given day in date
     return (year + year / 4 - year / 100 +
             year / 400 + t[month - 1] + day) %
            7;

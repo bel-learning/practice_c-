@@ -194,6 +194,7 @@ Interval chooseInterval(WINDOW *win, EventDictionary *storage, const Event *even
         // drawButton(to_string(ch).c_str(), 10+2, 2, selected == 12, win);
     }
     // Interval;
+    wclear(win);
     Interval defIntl;
     defIntl.start = Datetime(0, 0, 0, 0, 0, 0);
     return defIntl;
@@ -225,9 +226,9 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
 
     // Initializing
     mvwprintw(lWin, currentRow + 1, 0, "\nOptions:");
-    drawButton("EDIT", currentRow + 2, 0, selected == 0, lWin);
-    drawButton("MOVE EVENT", currentRow + 3, 0, selected == 1, lWin);
-    drawButton("DELETE", currentRow + 4, 0, selected == 2, lWin);
+    // drawButton("EDIT", currentRow + 2, 0, selected == 0, lWin);
+    drawButton("MOVE EVENT", currentRow + 3, 0, selected == 0, lWin);
+    drawButton("DELETE", currentRow + 4, 0, selected == 1, lWin);
     wrefresh(lWin);
 
     // While not ESC
@@ -247,7 +248,7 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
             break;
         case KEY_ENTER:
         case 10:
-            if (selected == 2)
+            if (selected == 1)
             {
                 storage->deleteEvent(event);
                 wprintw(rWin, "Deleting...\n");
@@ -261,12 +262,13 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
                 delwin(rWin);
                 return 2;
             }
-            if (selected == 1)
+            if (selected == 0)
             {
                 vector<Interval> intls = findFreeIntervals(event, storage);
                 Interval chosenIntl = chooseInterval(rWin, storage, event, intls);
                 if (chosenIntl.start.year == 0)
                 {
+                    wclear(rWin);
                     break;
                 }
                 napms(1000);
@@ -281,9 +283,8 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
             break;
         }
         mvwprintw(lWin, currentRow + 1, 0, "\nOptions:");
-        drawButton("EDIT", currentRow + 2, 0, selected == 0, lWin);
-        drawButton("MOVE EVENT", currentRow + 3, 0, selected == 1, lWin);
-        drawButton("DELETE", currentRow + 4, 0, selected == 2, lWin);
+        drawButton("MOVE EVENT", currentRow + 3, 0, selected == 0, lWin);
+        drawButton("DELETE", currentRow + 4, 0, selected == 1, lWin);
         wrefresh(lWin);
     }
 

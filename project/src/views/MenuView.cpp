@@ -25,12 +25,13 @@ int GetMenuView(WINDOW *main, Calendar *cal)
 {
     int rows, cols;
     getmaxyx(main, rows, cols);
-    int sRows = rows / 2 + 5, sCols = cols / 2;
+    int sRows = rows / 2 + 2, sCols = cols / 2;
 
-    WINDOW *subWindow = subwin(main, sRows, sCols, rows / 4 - 4, cols / 4);
+    WINDOW *subWindow = subwin(main, sRows, sCols, rows / 4, cols / 4);
     box(subWindow, 0, 0);
     curs_set(0);
 
+    // MENU BUTTONS
     std::string DailyCal = "Daily Calendar";
     std::string WeeklyCal = "Weekly Calendar";
     std::string MonthlyCal = "Monthly Calendar";
@@ -46,7 +47,7 @@ int GetMenuView(WINDOW *main, Calendar *cal)
 
     while (true)
     {
-
+        // PRINT TO SCREEN
         mvwprintw(subWindow, 1, sCols / 2 - 5, "Main Menu");
         wattron(subWindow, A_BOLD);
 
