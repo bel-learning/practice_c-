@@ -5,6 +5,11 @@
 #include <iomanip>
 #include "util.h"
 
+/**
+ * @file event.cpp
+ *
+ * @brief Implements the Event class and its derived classes, NormalEvent, Task, and Deadline.
+ */
 using namespace std;
 
 Event::Event(const string & title, const string & description, Repeat repeat)
@@ -94,6 +99,15 @@ void NormalEvent::renderInDays(WINDOW * win, bool colored) const {
     wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
     wrefresh(win);
 };
+void NormalEvent::renderFormatted(WINDOW * win) const {
+    wprintw(win, "Type: task\n");
+    wprintw(win, "Title: %s\n", getTitle().c_str());
+    wprintw(win, "Description: %s\n", getDescription().c_str());
+    wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
+    wprintw(win, "Location: %s\n", m_Location.c_str());
+    wprintw(win, "Start: [%02d %02d] %02d %s\n",m_Start.hour, m_Start.minute,  m_Start.day, getMonthName(m_Start.month).c_str());
+    wprintw(win, "End: [%02d %02d] %02d %s\n",m_End.hour, m_End.minute,  m_End.day, getMonthName(m_End.month).c_str());
+}
 Event * NormalEvent::findNextRepeatable() const {
     Datetime newStart(m_Start);
     Datetime newEnd(m_End);
@@ -132,6 +146,23 @@ stringstream NormalEvent::toFile() const {
     out << m_Location << "," << m_Start.toFileString() << "," << m_End.toFileString();
     return out;
 };
+long long NormalEvent::getDifference() const  {
+    return m_End.toSeconds() - m_Start.toSeconds();
+};
+Interval NormalEvent::proposeNextInterval(int move) const {
+    long long block = getDifference();
+    long long start = m_Start.toSeconds() + move * block;
+    long long end = m_End.toSeconds() + move * block;    
+    Interval intl;
+    intl.start = secondsToDatetime(start);
+    intl.end = secondsToDatetime(end);
+    return intl;
+};
+void NormalEvent::changeTime(const Interval & intl) {
+    m_Start = intl.start;
+    m_End = intl.end;
+}
+
 
 
 Task::Task(const string & title, const string & description, Repeat repeat, const Datetime & start, const Datetime & end, bool finished)
@@ -189,10 +220,17 @@ void Task::renderInDays(WINDOW * win, bool colored) const {
     wprintw(win, "%02d %s : %s\n", m_Start.day, getMonthName(m_Start.month).c_str(), getTitle().c_str());
     wattroff(win, COLOR_PAIR(1));
     wattroff(win, COLOR_PAIR(2));
-
-
     wrefresh(win);
 };
+void Task::renderFormatted(WINDOW * win) const {
+    wprintw(win, "Type: task\n");
+    wprintw(win, "Title: %s\n", getTitle().c_str());
+    wprintw(win, "Description: %s\n", getDescription().c_str());
+    wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
+    wprintw(win, "Start: [%02d %02d] %02d %s\n",m_Start.hour, m_Start.minute,  m_Start.day, getMonthName(m_Start.month).c_str());
+    wprintw(win, "End: [%02d %02d] %02d %s\n",m_End.hour, m_End.minute,  m_End.day, getMonthName(m_End.month).c_str());
+    wprintw(win, "Finished: ", to_string(m_Finished).c_str());
+}
 
 Event * Task::makeCopy() const {
     return new Task(this->getTitle(), this->getDescription(), this->getRepeat(), m_Start, m_End, m_Finished);
@@ -244,6 +282,23 @@ stringstream Task::toFile() const {
     return out;
 };
 
+long long Task::getDifference() const  {
+    return m_End.toSeconds() - m_Start.toSeconds();
+};
+Interval Task::proposeNextInterval(int move) const {
+    long long block = getDifference();
+    long long start = m_Start.toSeconds() + move * block;
+    long long end = m_End.toSeconds() + move * block;    
+    Interval intl;
+    intl.start = secondsToDatetime(start);
+    intl.end = secondsToDatetime(end);
+    return intl;
+};
+void Task::changeTime(const Interval & intl) {
+    m_Start = intl.start;
+    m_End = intl.end;
+}
+
 
 Deadline::Deadline(const string & title, const string & description, Repeat repeat, const Datetime & end)
     : Event(title, description, repeat), m_End(end) {};
@@ -283,6 +338,13 @@ void Deadline::renderInDays(WINDOW * win, bool colored) const {
     wattroff(win, COLOR_PAIR(4));
     wrefresh(win);
 };
+void Deadline::renderFormatted(WINDOW * win) const {
+    wprintw(win, "Type: deadline\n");
+    wprintw(win, "Title: %s\n", getTitle().c_str());
+    wprintw(win, "Description: %s\n", getDescription().c_str());
+    wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
+    wprintw(win, "Until: [%02d %02d] %02d %s\n",m_End.hour, m_End.minute,  m_End.day, getMonthName(m_End.month).c_str());
+}
 
 
 void Deadline::display() {
@@ -320,4 +382,19 @@ stringstream Deadline::toFile() const {
     return out;
 };
 
+long long Deadline::getDifference() const  {
+    return 30 * 60;
+};
+Interval Deadline::proposeNextInterval(int move) const {
+    long long block = getDifference();
+    long long start = m_End.toSeconds() + move * block;
+    long long end = m_End.toSeconds() + (move+1) * block;    
+    Interval intl;
+    intl.start = secondsToDatetime(start);
+    intl.end = secondsToDatetime(end);
+    return intl;
+};
 
+void Deadline::changeTime(const Interval & intl) {
+    m_End = intl.start;
+}

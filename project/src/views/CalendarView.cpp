@@ -1,6 +1,5 @@
 #include "../state.h"
 #include "../calendar.h"
-#include "../window.h"
 #include "../util.h"
 
 

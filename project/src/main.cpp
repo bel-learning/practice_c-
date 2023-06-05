@@ -6,7 +6,6 @@
 #include "datetime.h"
 #include "calendar.h"
 #include "util.h"
-#include "window.h"
 #include "state.h"
 #include "views/MenuView.h"
 #include "views/CalendarView.h"
@@ -59,9 +58,13 @@ int main() {
     Calendar * cal = nullptr;
     EventDictionary storage;
     addDummyData(&storage);
+    // Controls App main stage
     MainState state;
+    
     // int row = 20;
     // int col = 80;
+
+    // Initializing NCURSES 
     WINDOW * mainWin;
     if ( (mainWin = initscr()) == NULL ) {
         fprintf(stderr, "Error initialising ncurses.\n");
@@ -80,11 +83,13 @@ int main() {
     state = MainState::MenuView;
     int choice = 0;
     int res = 0;
-    // mvwprintw(mainWin, 1,1, "hello");
+    // Main APP LOOP
     while(running) {
+        // DEBUGGING PURPOSES
         mvwprintw(mainWin, 1,1, "state - %d", state);
         mvwprintw(mainWin, 2,1, "choice - %d", choice);
         refresh();
+        // MAIN APP STATES
         switch(state) {
             case MainState::MenuView:
                 box(mainWin, 0,0);

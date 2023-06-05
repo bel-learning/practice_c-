@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17 -Wall -fsanitize=address 
+CFLAGS = -std=c++17 -Wall -g -fsanitize=address 
 
 SRC_DIR = src
 BUILD_DIR = build

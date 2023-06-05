@@ -7,7 +7,12 @@
 #include "calendar.h"
 #include "datetime.h"
 #include "util.h"
-#include "window.h"
+
+/**
+ * @file calendar.cpp
+ *
+ * @brief Implementation of Calendar and its derived classes.
+ */
 
 using namespace std;
 
@@ -16,11 +21,6 @@ Calendar::Calendar() {
 };
 Calendar::Calendar(const Datetime & time) : m_CurrentTime(time) {}
 Calendar::~Calendar() {}
-// bool Calendar::addEvent(const Event * e) {
-//     m_Events.push_back(e->makeCopy());
-// }
-// const std::vector<Event *> Calendar::getEvents(const Datetime & start) const 
-
 
 
 DailyCalendar::DailyCalendar() : Calendar() {};
@@ -486,4 +486,53 @@ const vector<Event *> & EventDictionary::getEvents() const {
 }
 const vector<Event *> & EventDictionary::getRepeatEvents() const {
     return m_RepeatEvents;
+}
+
+
+void EventDictionary::deleteEvent(const Event * event) {
+    int i = 0;
+    for(Event * e : m_Events) {
+        if(e->getTitle() == event->getTitle()
+        && e->getDescription() == event->getDescription()
+        && e->getRepeat() == event->getRepeat()
+        ) {
+            delete e;
+            m_Events.erase(m_Events.begin() + i);
+            return;
+        }
+        i++;
+    }
+    i = 0;
+    for(Event * e : m_RepeatEvents) {
+        if(e->getTitle() == event->getTitle()
+        && e->getDescription() == event->getDescription()
+        && e->getRepeat() == event->getRepeat()
+        ) {
+            delete e;
+            m_RepeatEvents.erase(m_RepeatEvents.begin() + i);
+            return;
+        }
+        i++;
+    }
+};
+
+void EventDictionary::changeEventTime(const Event * event, const Interval & intl) {
+    for(Event * e : m_Events) {
+        if(e->getTitle() == event->getTitle()
+        && e->getDescription() == event->getDescription()
+        && e->getRepeat() == event->getRepeat()
+        ) {
+            e->changeTime(intl);            
+            return;
+        }
+    }
+    for(Event * e : m_RepeatEvents) {
+        if(e->getTitle() == event->getTitle()
+        && e->getDescription() == event->getDescription()
+        && e->getRepeat() == event->getRepeat()
+        ) {
+            e->changeTime(intl);            
+            return;
+        }
+    }
 }

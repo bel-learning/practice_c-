@@ -1,6 +1,7 @@
 #include<ncurses.h>
-#include "../calendar.h"
 #include<cctype>
+#include "../calendar.h"
+#include "./EventView.h"
 
 using namespace std;
 
@@ -34,24 +35,45 @@ vector<Event *> match(EventDictionary * storage, const string & needle) {
     return foundEvents;
 }
 
-void search(WINDOW * win, EventDictionary * storage) {
+int search(WINDOW * win, EventDictionary * storage) {
     int COLS = getmaxx(win);
     int ROWS = getmaxy(win);
-    WINDOW * inWindow = subwin(win, ROWS-5, COLS-2 , 4,2);
-    int ch;
-    string input;
+    WINDOW * inWindow = subwin(win, ROWS-5, COLS-3 , 4,2);
+    wattron(win, A_BOLD);
+    mvwprintw(win, 2, COLS/2 - 6, "Search Events");
+    wattroff(win, A_BOLD);
+    wrefresh(win);
+
+
+    int ch = KEY_BACKSPACE;
+    string input = "";
     vector<Event *> foundEvents;
     int selected = 0;
     // ESC to leave
-    while ((ch = getch()) != 27) {
+    do {
+        wattron(win, A_BOLD);
+        mvwprintw(win, 2, COLS/2 - 6, "Search Events");
+        wattroff(win, A_BOLD);
+        wrefresh(win);
         switch(ch) {
             case KEY_BACKSPACE:
             case KEY_DC:
             case 127:
                 if(!input.empty() && selected == 0)
                     input.pop_back();
+                break;
             case KEY_ENTER:
             case '\n':
+                if(selected) {
+                    wclear(win);
+                    wclear(inWindow);
+                    int state = GetEventView(win, storage, foundEvents[selected-1]);
+                    for(const Event * event : foundEvents) {
+                        delete event;
+                    }
+                    box(win, 0,0);
+                    return state;
+                }
                 break;
             case KEY_DOWN:
                 selected++;
@@ -68,6 +90,7 @@ void search(WINDOW * win, EventDictionary * storage) {
             default:    
                 if(selected == 0)
                     input.push_back(static_cast<char>(ch));
+                break;
         }
      
         wclear(inWindow);
@@ -101,7 +124,8 @@ void search(WINDOW * win, EventDictionary * storage) {
         }
         wrefresh(inWindow);
 
-    }
+    } while ((ch = getch()) != 27);
+
     wclear(inWindow);
     delwin(inWindow);
 }
@@ -109,12 +133,8 @@ void search(WINDOW * win, EventDictionary * storage) {
 int GetSearchView(WINDOW * main, EventDictionary * storage) {
     int MAX_ROWS, MAX_COLS;
     getmaxyx(main, MAX_ROWS, MAX_COLS);
-    wattron(main, A_BOLD);
-    mvwprintw(main, 2, MAX_COLS/2-6, "Search Events");
-    wattroff(main, A_BOLD);
-    refresh();
 
-    search(main, storage);
+    int state = search(main, storage);
     wclear(main);
-    return 0;
+    return state;
 }

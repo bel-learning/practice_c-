@@ -8,7 +8,11 @@
 #include <fstream>
 
     
-
+/**
+ * @file datetime.cpp
+ *
+ * @brief Implementation of custom Datetime class.
+ */
 
 Datetime::Datetime()  {};
 Datetime::Datetime(const tm * localTime) {

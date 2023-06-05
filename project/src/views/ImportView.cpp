@@ -5,7 +5,6 @@
 
 using namespace std;
 
-ofstream file("./debug.txt");
 
 Event * parseLine(const string & formatted) {
     Event * newEvent = nullptr;
@@ -35,7 +34,6 @@ Event * parseLine(const string & formatted) {
     if(type == "deadline") {
         newEvent = new Deadline(title, description, repeat, leftOver);
     }
-    writeToDebug(newEvent->toFile().str(), file);
     return newEvent;
 }
 

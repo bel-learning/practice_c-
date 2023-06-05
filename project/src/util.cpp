@@ -6,6 +6,13 @@
 #include <iostream>
 #include <fstream>
 #include <ncurses.h>
+
+/**
+ * @file util.cpp
+ *
+ * @brief Implementation of Helper functions commonly used in the program.
+ */
+
 Datetime getCurrentDateTime() {
     auto now = chrono::system_clock::now();
     time_t currentTime = chrono::system_clock::to_time_t(now);
