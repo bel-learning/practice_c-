@@ -159,7 +159,7 @@ Interval chooseInterval(WINDOW *win, EventDictionary *storage, const Event *even
         s.append(to_string(intls[i].start.hour) + ":" + to_string(intls[i].start.minute) + "-");
         s.append(to_string(intls[i].end.hour) + ":" + to_string(intls[i].end.minute));
 
-        drawButton(s, i + 2, 2, selected == i, win);
+        drawButton(s, i + 2, 2, selected == static_cast<int>(i), win);
     }
     int ch;
     // ESC KEY
@@ -169,7 +169,7 @@ Interval chooseInterval(WINDOW *win, EventDictionary *storage, const Event *even
         {
         case KEY_DOWN:
             selected++;
-            if (selected > intls.size() - 1)
+            if (selected > static_cast<int>(intls.size() - 1))
                 selected = 0;
             break;
         case KEY_UP:
@@ -189,7 +189,7 @@ Interval chooseInterval(WINDOW *win, EventDictionary *storage, const Event *even
             s.append(to_string(intls[i].start.hour) + ":" + to_string(intls[i].start.minute) + "-");
             s.append(to_string(intls[i].end.hour) + ":" + to_string(intls[i].end.minute));
 
-            drawButton(s, i + 2, 2, selected == i, win);
+            drawButton(s, i + 2, 2, static_cast<size_t>(selected) == i, win);
         }
         // drawButton(to_string(ch).c_str(), 10+2, 2, selected == 12, win);
     }
@@ -238,13 +238,13 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
         {
         case KEY_DOWN:
             selected++;
-            if (selected > 2)
+            if (selected > 1)
                 selected = 0;
             break;
         case KEY_UP:
             selected--;
             if (selected < 0)
-                selected = 2;
+                selected = 1;
             break;
         case KEY_ENTER:
         case 10:
@@ -314,7 +314,6 @@ bool intervalsOverlapping(const Interval &a, const Interval &b)
 
 vector<Interval> findFreeIntervals(const Event *event, EventDictionary *storage)
 {
-    long long diff = event->getDifference();
     // Try first 10 movable
     vector<Interval> res;
     for (int i = 1; i <= 10; i++)

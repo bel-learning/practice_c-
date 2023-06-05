@@ -249,7 +249,7 @@ void Task::renderFormatted(WINDOW *win) const
     wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
     wprintw(win, "Start: [%02d %02d] %02d %s\n", m_Start.hour, m_Start.minute, m_Start.day, getMonthName(m_Start.month).c_str());
     wprintw(win, "End: [%02d %02d] %02d %s\n", m_End.hour, m_End.minute, m_End.day, getMonthName(m_End.month).c_str());
-    wprintw(win, "Finished: ", to_string(m_Finished).c_str());
+    wprintw(win, "Finished: %s", to_string(m_Finished).c_str());
 }
 
 Event *Task::makeCopy() const

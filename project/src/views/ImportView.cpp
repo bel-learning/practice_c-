@@ -58,7 +58,7 @@ int GetImportView(WINDOW *win, EventDictionary *storage)
     refresh();
 
     string filename = promptInput(sWin, "<Filename>.cal (File to import(must be in examples/ directory)):");
-    mvwprintw(win, MAX_ROWS / 2 - 1, MAX_COLS / 2 - 6, filename.c_str());
+    mvwprintw(win, MAX_ROWS / 2 - 1, MAX_COLS / 2 - 6,"%s", filename.c_str());
     wrefresh(win);
     filename = "./examples/" + filename;
     ifstream file(filename);

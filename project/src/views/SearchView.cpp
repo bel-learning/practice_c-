@@ -89,13 +89,14 @@ int search(WINDOW *win, EventDictionary *storage)
                 {
                     delete event;
                 }
+                foundEvents = vector<Event *>();
                 box(win, 0, 0);
                 return state;
             }
             break;
         case KEY_DOWN:
             selected++;
-            if (selected > foundEvents.size())
+            if (selected > static_cast<int>(foundEvents.size()))
                 selected = 0;
             break;
 
@@ -103,7 +104,7 @@ int search(WINDOW *win, EventDictionary *storage)
             selected--;
             if (selected < 0)
             {
-                selected = foundEvents.size();
+                selected = static_cast<int>(foundEvents.size());
             }
             break;
         default:
@@ -129,12 +130,12 @@ int search(WINDOW *win, EventDictionary *storage)
         {
             delete event;
         }
-
+        foundEvents = vector<Event *>();
         foundEvents = match(storage, input);
         size_t i = 1;
         for (const Event *event : foundEvents)
         {
-            if (selected == i)
+            if (selected == static_cast<int>(i))
                 wattron(inWindow, COLOR_PAIR(3));
             event->renderInDays(inWindow, false);
             wattroff(inWindow, COLOR_PAIR(3));
@@ -144,15 +145,19 @@ int search(WINDOW *win, EventDictionary *storage)
 
     } while ((ch = getch()) != 27);
 
+    for (const Event *event : foundEvents)
+    {
+        delete event;
+    }
+    foundEvents = vector<Event *>();
+
     wclear(inWindow);
     delwin(inWindow);
+    return 0;
 }
 
 int GetSearchView(WINDOW *main, EventDictionary *storage)
 {
-    int MAX_ROWS, MAX_COLS;
-    getmaxyx(main, MAX_ROWS, MAX_COLS);
-
     int state = search(main, storage);
     wclear(main);
     return state;

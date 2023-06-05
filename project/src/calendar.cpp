@@ -369,7 +369,8 @@ void MonthlyCalendar::display(WINDOW *win, const Datetime &date, int selected) c
         {
             wattron(win, COLOR_PAIR(3));
         }
-        mvwprintw(win, row + paddingTop, col + paddingLeft, "%3d", i);
+        if(MAX_ROWS > row + paddingTop)
+            mvwprintw(win, row + paddingTop, col + paddingLeft, "%3d", i);
         wattroff(win, COLOR_PAIR(3));
         col += 4;
 

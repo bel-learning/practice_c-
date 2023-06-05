@@ -50,7 +50,7 @@ string getInput(WINDOW *win)
             input.push_back(static_cast<char>(ch));
         wclear(inWindow);
         wprintw(inWindow, "> ");
-        wprintw(inWindow, input.c_str());
+        wprintw(inWindow, "%s", input.c_str());
         wrefresh(inWindow);
     }
     wclear(inWindow);
@@ -378,7 +378,7 @@ long long repeatToSeconds(const Event::Repeat &repeat)
 string promptInput(WINDOW *win, string question)
 {
     wattron(win, A_BOLD);
-    mvwprintw(win, 0, 0, question.c_str());
+    mvwprintw(win, 0, 0, "%s", question.c_str());
     wattroff(win, A_BOLD);
 
     wrefresh(win);
