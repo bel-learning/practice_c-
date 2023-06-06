@@ -28,7 +28,7 @@ int main()
     // int col = 80;
 
     // Initializing NCURSES
-    WINDOW *mainWin;
+    WINDOW *mainWin = nullptr;
     if ((mainWin = initscr()) == NULL)
     {
         fprintf(stderr, "Error initialising ncurses.\n");

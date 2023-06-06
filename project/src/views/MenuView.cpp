@@ -95,8 +95,9 @@ int GetMenuView(WINDOW *main, Calendar *cal)
             return selectedButton;
             break;
         case 'q':
-            return 0;
             break;
         }
     }
+    delwin(subWindow);    
+    return 0;
 };

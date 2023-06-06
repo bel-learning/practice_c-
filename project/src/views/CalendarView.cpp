@@ -103,10 +103,7 @@ int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
 
     for (Event *event : events)
         delete event;
-    wclear(lWindow);
-    wclear(rWindow);
-    delwin(lWindow);
-    delwin(rWindow);
+ 
     return 1;
 }
 
@@ -246,10 +243,7 @@ int triggerDailyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
     }
     for (Event *event : events)
         delete event;
-    wclear(lWindow);
-    wclear(rWindow);
-    delwin(lWindow);
-    delwin(rWindow);
+   
     return 1;
 }
 
@@ -261,25 +255,22 @@ int GetCalendarView(int type, WINDOW *main, Calendar *cal)
     // Dividing the screen in half. One for calendar, 1 for days
     WINDOW *lWindow = subwin(main, MAX_ROWS - 3, MAX_COLS / 2 - 2, 1, 1);
     WINDOW *rWindow = subwin(main, MAX_ROWS - 3, MAX_COLS / 2 - 4, 1, MAX_COLS / 2 + 2);
-
+    int state = 0; 
     if (type == Menu::SMonthlyCalendar)
     {
 
-        int state = triggerMonthlyView(lWindow, rWindow, cal);
-        return state;
+        state = triggerMonthlyView(lWindow, rWindow, cal);
     }
 
     if (type == Menu::SWeeklyCalendar)
     {
-        int state = triggerWeeklyView(lWindow, rWindow, cal);
-        return state;
+        state = triggerWeeklyView(lWindow, rWindow, cal);
     }
 
     if (type == Menu::SDailyCalendar)
     {
-        int state = triggerDailyView(lWindow, rWindow, cal);
-        return state;
+        state = triggerDailyView(lWindow, rWindow, cal);
     }
 
-    return 0;
+    return state;
 }
