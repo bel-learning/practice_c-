@@ -19,7 +19,7 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     int MAX_ROWS, MAX_COLS;
     getmaxyx(main, MAX_ROWS, MAX_COLS);
     wattron(main, A_UNDERLINE);
-    mvwprintw(main, MAX_ROWS - 2, MAX_COLS - 24, "WRITE EXIT TO CANCEL:");
+    mvwprintw(main, MAX_ROWS - 2, MAX_COLS - 24, "ESC TO CANCEL:");
     wattroff(main, A_UNDERLINE);
     Event *event = nullptr;
 
@@ -128,11 +128,18 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         }
         event = new Deadline(title, description, repeat, timeEnd);
     }
-
-    if (repeat != Event::Repeat::None)
-        storage->addRepeatEvent(event);
-    else
-        storage->addEvent(event);
+    if(event == nullptr) {
+        wclear(bWindow);
+        delwin(bWindow);
+        return 2;
+    }
+    else {
+        if (repeat != Event::Repeat::None)
+            storage->addRepeatEvent(event);
+        else
+            storage->addEvent(event);
+    } 
+    wclear(bWindow);
     delwin(bWindow);
     return 1;
 }
@@ -142,10 +149,13 @@ void drawButton(const std::string &label, int y, int x, bool selected, WINDOW *w
     if (selected)
     {
         wattron(win, A_REVERSE); // Highlight the button if selected
+        wattron(win, A_BLINK); // Highlight the button if selected
     }
 
     mvwprintw(win, y, x, "[%s]\n", label.c_str());
-    wattroff(win, A_REVERSE); // Turn off highlighting
+    wattroff(win, A_BLINK); // Turn off highlighting
+    wattroff(win, A_REVERSE); // Highlight the button if selected
+
 
     wrefresh(win);
 }
@@ -271,8 +281,8 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
                     wclear(rWin);
                     break;
                 }
-                napms(1000);
                 storage->changeEventTime(event, chosenIntl);
+                napms(1000);
                 wclear(rWin);
                 wclear(lWin);
                 wclear(win);

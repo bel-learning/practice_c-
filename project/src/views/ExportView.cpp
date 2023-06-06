@@ -17,13 +17,19 @@ int GetExportView(WINDOW *win, EventDictionary *storage)
     int MAX_ROWS, MAX_COLS;
     getmaxyx(win, MAX_ROWS, MAX_COLS);
     wattron(win, A_UNDERLINE);
-    mvwprintw(win, MAX_ROWS - 2, MAX_COLS - 24, "WRITE EXIT TO CANCEL:");
+    mvwprintw(win, MAX_ROWS - 2, MAX_COLS - 24, "ESC TO CANCEL:");
     wattroff(win, A_UNDERLINE);
 
     WINDOW *sWin = subwin(win, MAX_ROWS - 4, MAX_COLS - 4, 1, 2);
     refresh();
 
     string filename = promptInput(sWin, "<Filename>.cal (It'll be in the examples directory): ");
+    if(filename == "exit") {
+        wclear(sWin);
+        wclear(win);
+        delwin(sWin);
+        return 0;
+    }
     mvwprintw(win, MAX_ROWS / 2 - 1, MAX_COLS / 2 - 6, "%s", filename.c_str());
     wrefresh(win);
     filename = "./examples/" + filename;

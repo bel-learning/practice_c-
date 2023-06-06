@@ -97,7 +97,7 @@ int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
 
         ch = getch();
 
-        if (ch == 'q')
+        if (ch == 27)
             break;
     }
 
@@ -175,18 +175,15 @@ int triggerWeeklyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
         wrefresh(rWindow);
 
         ch = getch();
-
-        if (ch == 'q')
+        // ESC
+        if (ch == 27)
         {
             break;
         }
     }
     for (Event *event : events)
         delete event;
-    wclear(lWindow);
-    wclear(rWindow);
-    delwin(lWindow);
-    delwin(rWindow);
+  
     return 1;
 }
 int triggerDailyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
@@ -235,8 +232,8 @@ int triggerDailyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
         wrefresh(rWindow);
 
         ch = getch();
-
-        if (ch == 'q')
+        // ESC
+        if (ch == 27)
         {
             break;
         }
@@ -258,7 +255,6 @@ int GetCalendarView(int type, WINDOW *main, Calendar *cal)
     int state = 0; 
     if (type == Menu::SMonthlyCalendar)
     {
-
         state = triggerMonthlyView(lWindow, rWindow, cal);
     }
 
@@ -271,6 +267,11 @@ int GetCalendarView(int type, WINDOW *main, Calendar *cal)
     {
         state = triggerDailyView(lWindow, rWindow, cal);
     }
+    wclear(lWindow);
+    wclear(rWindow);
+
+    delwin(lWindow);
+    delwin(rWindow);
 
     return state;
 }

@@ -69,35 +69,35 @@ int GetMenuView(WINDOW *main, Calendar *cal)
 
         switch (ch)
         {
-        case KEY_UP:
-        case 2965:
-            selectedButton--;
-            if (selectedButton < 0)
-            {
-                selectedButton = 7;
-            }
-            break;
-        case KEY_DOWN:
-        case 2966:
-            selectedButton++;
-            if (selectedButton > 7)
-            {
-                selectedButton = 0;
-            }
-            break;
+            case KEY_UP:
+            case 2965:
+                selectedButton--;
+                if (selectedButton < 0)
+                {
+                    selectedButton = 7;
+                }
+                break;
+            case KEY_DOWN:
+            case 2966:
+                selectedButton++;
+                if (selectedButton > 7)
+                {
+                    selectedButton = 0;
+                }
+                break;
 
-        case KEY_ENTER:
-        case 10: // Enter key
-            wrefresh(subWindow);
-            wclear(subWindow);
-            delwin(subWindow);
+            case KEY_ENTER:
+            case 10: // Enter key
+                wrefresh(subWindow);
+                wclear(subWindow);
+                delwin(subWindow);
 
-            return selectedButton;
-            break;
-        case 'q':
-            break;
+                return selectedButton;
+            case 'q':
+                break;
         }
     }
-    delwin(subWindow);    
+    wclear(subWindow);
+    delwin(subWindow);
     return 0;
 };

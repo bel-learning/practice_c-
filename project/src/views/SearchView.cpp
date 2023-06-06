@@ -91,6 +91,7 @@ int search(WINDOW *win, EventDictionary *storage)
                 }
                 foundEvents = vector<Event *>();
                 box(win, 0, 0);
+                delwin(inWindow);
                 return state;
             }
             break;

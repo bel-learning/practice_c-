@@ -104,6 +104,7 @@ int main()
             clear();
             box(mainWin, 0, 0);
             res = AddEventView(mainWin, cal, &storage);
+            res == 2 && mvwprintw(mainWin, 2, 2, "Event add UNSUCCESSFUL");
             state = MainState::MenuView;
             break;
 

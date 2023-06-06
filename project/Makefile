@@ -43,3 +43,6 @@ clean:
 doc:
 	doxygen Doxyfile 
 	mv doc/html/* doc/
+	
+valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all ./baljibil

@@ -108,7 +108,7 @@ void NormalEvent::renderInDays(WINDOW *win, bool colored) const
 };
 void NormalEvent::renderFormatted(WINDOW *win) const
 {
-    wprintw(win, "Type: task\n");
+    wprintw(win, "Type: Event\n");
     wprintw(win, "Title: %s\n", getTitle().c_str());
     wprintw(win, "Description: %s\n", getDescription().c_str());
     wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
@@ -243,7 +243,7 @@ void Task::renderInDays(WINDOW *win, bool colored) const
 };
 void Task::renderFormatted(WINDOW *win) const
 {
-    wprintw(win, "Type: task\n");
+    wprintw(win, "Type: Task\n");
     wprintw(win, "Title: %s\n", getTitle().c_str());
     wprintw(win, "Description: %s\n", getDescription().c_str());
     wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
@@ -374,7 +374,7 @@ void Deadline::renderInDays(WINDOW *win, bool colored) const
 };
 void Deadline::renderFormatted(WINDOW *win) const
 {
-    wprintw(win, "Type: deadline\n");
+    wprintw(win, "Type: Deadline\n");
     wprintw(win, "Title: %s\n", getTitle().c_str());
     wprintw(win, "Description: %s\n", getDescription().c_str());
     wprintw(win, "Repeat: %s\n", repeatToString(getRepeat()).c_str());
