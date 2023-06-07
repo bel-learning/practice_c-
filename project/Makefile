@@ -21,7 +21,7 @@ all: compile
 compile: $(BUILD_DIR) $(TARGET)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@ -lncurses
+	$(CC) $(CFLAGS) -c $< -o $@
 	
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ -lncurses
@@ -45,4 +45,4 @@ doc:
 	mv doc/html/* doc/
 	
 valgrind:
-	valgrind --leak-check=full --show-leak-kinds=all ./baljibil
+	valgrind -s --leak-check=full --show-leak-kinds=all ./baljibil

@@ -15,7 +15,7 @@
  * @param type The type of view to display (e.g., Monthly, Weekly, Daily)
  * @param main The main window object to output the view
  * @param cal The Calendar object containing the polymorphic structure for the view
- * @return An integer representing the status of the function executi
+ * @return An integer representing the status of the function execution
  */
 int GetCalendarView(int type, WINDOW *main, Calendar *cal);
 

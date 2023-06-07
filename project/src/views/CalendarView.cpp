@@ -8,6 +8,7 @@
  * @brief Implementation of functions in CalendarView with its helper functions
  */
 
+
 int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
 {
     Datetime showDate = getCurrentDateTime();
@@ -244,6 +245,7 @@ int triggerDailyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
     return 1;
 }
 
+// Depending on which button is pressed, it calls corresponding calendar types.
 int GetCalendarView(int type, WINDOW *main, Calendar *cal)
 {
     int MAX_ROWS, MAX_COLS;

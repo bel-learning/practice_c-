@@ -35,7 +35,7 @@ void DailyCalendar::print(WINDOW *win, const Datetime &date, int selected) const
     mvwprintw(win, 2, MAX_COLS / 2 - 10, "<Daily Calendar>");
     wattroff(win, COLOR_PAIR(3));
 
-    mvwprintw(win, 2 + 2, MAX_COLS / 2 - 10, "Today is %d %s", date.day, getMonthName(date.month).c_str());
+    mvwprintw(win, 2 + 2, MAX_COLS / 2 - 10, "Today is %02d %s", date.day, getMonthName(date.month).c_str());
 
     wrefresh(win);
 }

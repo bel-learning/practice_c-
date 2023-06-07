@@ -140,5 +140,5 @@ int main()
     delwin(mainWin);
     endwin();
 
-    return 0;
+    return res;
 }

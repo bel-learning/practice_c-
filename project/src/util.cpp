@@ -290,7 +290,7 @@ Event::Repeat stringToRepeat(const string &formatted)
         return Event::Repeat::Daily;
     if (formatted == "yearly")
         return Event::Repeat::Yearly;
-    return Event::Repeat::Yearly;
+    return Event::Repeat::None;
 }
 
 string repeatToString(const Event::Repeat &repeat)

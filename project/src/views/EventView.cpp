@@ -1,8 +1,12 @@
 #include <ncurses.h>
 #include <string>
+#include<iomanip>
+#include<sstream>
+#include<cctype>
 #include "../event.h"
 #include "../util.h"
 #include "../calendar.h"
+#include "../validation.h"
 #include "EventView.h"
 
 using namespace std;
@@ -14,6 +18,7 @@ using namespace std;
  * @brief Implementation of functions in EventView.h with its helper functions
  */
 
+// Add event process with rendering and validations
 int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
 {
     int MAX_ROWS, MAX_COLS;
@@ -25,14 +30,22 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
 
     WINDOW *bWindow = subwin(main, MAX_ROWS - 4, MAX_COLS - 4, 1, 2);
     refresh();
-    string type = promptInput(bWindow, "Type of event (deadline, task, event):");
+
+
+    string type = promptInput(bWindow, "Type of event (deadline, task, event)*:");
+    while(!isValidType(type)) {
+        type = promptInput(bWindow, "Type of event (deadline, task, event) again:");
+    }   
     if (type == "exit")
     {
         clear();
         delwin(bWindow);
         return 0;
     }
-    string title = promptInput(bWindow, "The title:");
+    string title = promptInput(bWindow, "The title*:");
+    while(!isValidTitle(title)) {
+        title = promptInput(bWindow, "The title (must be higher than 0):");
+    }   
     if (title == "exit")
     {
         clear();
@@ -41,15 +54,20 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         return 0;
     }
     string description = promptInput(bWindow, "Description:");
+    while(!isValidDescription(description)) {
+        description = promptInput(bWindow, "The description (must be lower than 80):");
+    }   
     if (description == "exit")
     {
         clear();
         delwin(bWindow);
-
         return 0;
     }
 
-    string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly, or none):");
+    string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly, or none)*:");
+    while(!isValidRepeat(repeatFormatted)) {
+        repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly, or none) again:");
+    }   
     if (repeatFormatted == "exit")
     {
         clear();
@@ -67,14 +85,20 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
             delwin(bWindow);
             return 0;
         }
-        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
+        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
+        while(!isValidDate(timeStart)) {
+            timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
+        }   
         if (timeStart == "exit")
         {
             clear();
             delwin(bWindow);
             return 0;
         }
-        string duration = promptInput(bWindow, "Duration (30, in mins):");
+        string duration = promptInput(bWindow, "Duration (in mins)*:");
+        while(!isValidMinutes(duration)) {
+            duration = promptInput(bWindow, "Duration (in mins), must be higher than 0:");
+        }   
         if (duration == "exit")
         {
             clear();
@@ -87,14 +111,20 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
 
     if (type == "task")
     {
-        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
+        string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
+        while(!isValidDate(timeStart)) {
+            timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
+        }   
         if (timeStart == "exit")
         {
             clear();
             delwin(bWindow);
             return 0;
         }
-        string duration = promptInput(bWindow, "Duration (30, in mins):");
+        string duration = promptInput(bWindow, "Duration (in mins)*:");
+        while(!isValidMinutes(duration)) {
+            duration = promptInput(bWindow, "Duration (in mins), must be higher than 0:");
+        }   
         if (duration == "exit")
         {
             clear();
@@ -102,11 +132,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
             return 0;
         }
 
-        string finished;
-        do
-        {
+        string finished = promptInput(bWindow, "Finished or not (1 or 0)*:");
+        while(!isValidBool(finished)) {
             finished = promptInput(bWindow, "Finished or not (1 or 0)*:");
-        } while (finished.empty());
+        }
         if (finished == "exit")
         {
             clear();
@@ -120,6 +149,9 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     if (type == "deadline")
     {
         string timeEnd = promptInput(bWindow, "End time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
+        while(!isValidDate(timeEnd)) {
+            timeEnd = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
+        }   
         if (timeEnd == "exit")
         {
             clear();
@@ -147,30 +179,30 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
 void drawButton(const std::string &label, int y, int x, bool selected, WINDOW *win)
 {
     if (selected)
-    {
         wattron(win, A_REVERSE); // Highlight the button if selected
-        wattron(win, A_BLINK); // Highlight the button if selected
-    }
-
     mvwprintw(win, y, x, "[%s]\n", label.c_str());
-    wattroff(win, A_BLINK); // Turn off highlighting
     wattroff(win, A_REVERSE); // Highlight the button if selected
-
-
     wrefresh(win);
+}
+
+void renderIntervals(WINDOW * win, const vector<Interval> &intls, int selected) {
+    for (size_t i = 0; i < intls.size(); i++)
+    {
+        stringstream iss;
+        iss << setw(2) << setfill('0') << intls[i].start.hour << ":"; // Set flags before first value
+        iss << setw(2) << setfill('0') << intls[i].start.minute;      // Set flags before second value
+        iss << "-" << setw(2) << setfill('0') << intls[i].end.hour << ":";   // Set flags before third value
+        iss << setw(2) << setfill('0') << intls[i].end.minute;        // Set flags before fourth value
+
+    
+        drawButton(iss.str(), i + 2, 2, selected == static_cast<int>(i), win);
+    }
 }
 
 Interval chooseInterval(WINDOW *win, EventDictionary *storage, const Event *event, const vector<Interval> &intls)
 {
     int selected = 0;
-    for (size_t i = 0; i < intls.size(); i++)
-    {
-        string s;
-        s.append(to_string(intls[i].start.hour) + ":" + to_string(intls[i].start.minute) + "-");
-        s.append(to_string(intls[i].end.hour) + ":" + to_string(intls[i].end.minute));
-
-        drawButton(s, i + 2, 2, selected == static_cast<int>(i), win);
-    }
+    renderIntervals(win, intls, selected);
     int ch;
     // ESC KEY
     while ((ch = getch()) != 27)
@@ -193,17 +225,10 @@ Interval chooseInterval(WINDOW *win, EventDictionary *storage, const Event *even
             return intls[selected];
             break;
         }
-        for (size_t i = 0; i < intls.size(); i++)
-        {
-            string s;
-            s.append(to_string(intls[i].start.hour) + ":" + to_string(intls[i].start.minute) + "-");
-            s.append(to_string(intls[i].end.hour) + ":" + to_string(intls[i].end.minute));
-
-            drawButton(s, i + 2, 2, static_cast<size_t>(selected) == i, win);
-        }
+        renderIntervals(win, intls, selected);
         // drawButton(to_string(ch).c_str(), 10+2, 2, selected == 12, win);
     }
-    // Interval;
+    // If chosen nothing
     wclear(win);
     Interval defIntl;
     defIntl.start = Datetime(0, 0, 0, 0, 0, 0);
