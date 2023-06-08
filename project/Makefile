@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -Wall 
+CFLAGS = -std=c++11 -Wall
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -24,7 +24,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 	
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ -lncurses
+	$(CC) $(CFLAGS) $^ -o $@ -lncurses --disable-leaks
 
 $(BUILD_DIR):
 	mkdir -p $(dir $(OBJS))

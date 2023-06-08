@@ -97,6 +97,8 @@ int dayIndexInWeek(const Datetime &time)
 }
 std::string getMonthName(int monthNum)
 {
+    if(monthNum > 12 || monthNum < 1)
+        return "";
     std::string months[] = {"Jan", "Feb", "Mar",
                             "Apr", "May", "Jun",
                             "Jul", "Aug", "Sep",

@@ -178,7 +178,6 @@ public:
     NormalEvent(const string &title, const string &description, Repeat repeat, const string &location, const Datetime &start, const Datetime &end);
     // Copy constructor
     NormalEvent(const NormalEvent &event);
-    NormalEvent(const string &title, const string &description, Repeat repeat, const string &formatted);
     // Assignment operator
     NormalEvent operator=(const NormalEvent &event);
 
@@ -214,7 +213,6 @@ class Task : public Event
 {
 public:
     Task(const string &title, const string &description, Repeat repeat, const Datetime &start, const Datetime &end, bool finished);
-    Task(const string &title, const string &description, Repeat repeat, const string &formatted);
 
     ~Task(){};
 
@@ -250,7 +248,6 @@ class Deadline : public Event
 {
 public:
     Deadline(const string &title, const string &description, Repeat repeat, const Datetime &end);
-    Deadline(const string &title, const string &description, Repeat repeat, const string &formatted);
 
     ~Deadline(){};
 

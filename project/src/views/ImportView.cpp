@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <fstream>
+#include "../validation.h"
 #include "../calendar.h"
 #include "../util.h"
 
@@ -11,37 +12,86 @@ using namespace std;
  * @brief Declaration of functions in ImportView and its utility functions
  */
 
+// Line to event
 Event *parseLine(const string &formatted)
 {
     Event *newEvent = nullptr;
+    int occur = 0;
+    for(const auto & c : formatted) {
+        if(c == ',')
+            occur++;
+    }
+
     std::istringstream iss(formatted);
     std::string token;
     std::getline(iss, token, ',');
     string type = token;
-
+    if(!isValidType(type))
+        return nullptr;
     std::getline(iss, token, ',');
     string title = token;
-
+    if(!isValidTitle(title))
+        return nullptr;
     std::getline(iss, token, ',');
     string description = token;
-
+    if(!isValidDescription(description))
+        return nullptr;
     std::getline(iss, token, ',');
     string repeatFormatted = token;
+    if(!isValidRepeat(repeatFormatted))
+        return nullptr;
     Event::Repeat repeat = stringToRepeat(repeatFormatted);
-    string leftOver;
-    std::getline(iss, leftOver);
-
+    
     if (type == "event")
     {
-        newEvent = new NormalEvent(title, description, repeat, leftOver);
+        std::getline(iss, token, ',');
+        string location = token;
+        if(!isValidLocation(location))
+            return nullptr;
+        std::getline(iss, token, ',');
+        string startDateFormatted = token;
+        if(!isValidDate(startDateFormatted))
+            return nullptr;
+        Datetime startTime(startDateFormatted);
+
+        std::getline(iss, token, ',');
+        string endDateFormatted = token;
+        if(!isValidDate(endDateFormatted))
+            return nullptr;
+        Datetime endTime(endDateFormatted);
+
+        newEvent = new NormalEvent(title, description, repeat, location, startTime, endTime);
     }
     if (type == "task")
     {
-        newEvent = new Task(title, description, repeat, leftOver);
+        std::getline(iss, token, ',');
+        string startDateFormatted = token;
+        if(!isValidDate(startDateFormatted))
+            return nullptr;
+        Datetime startTime(startDateFormatted);
+
+        std::getline(iss, token, ',');
+        string endDateFormatted = token;
+        if(!isValidDate(endDateFormatted))
+            return nullptr;
+        Datetime endTime(endDateFormatted);
+
+        std::getline(iss, token, ',');
+        string strDone = token;
+        if(!isValidBool(strDone))
+            return nullptr;
+        bool finished = strDone[0] == '0' ? false : true;
+        newEvent = new Task(title, description, repeat, startTime, endTime, finished);
     }
     if (type == "deadline")
     {
-        newEvent = new Deadline(title, description, repeat, leftOver);
+        std::getline(iss, token, ',');
+        string endDateFormatted = token;
+        if(!isValidDate(endDateFormatted))
+            return nullptr;
+        Datetime endTime(endDateFormatted);
+
+        newEvent = new Deadline(title, description, repeat, endTime);
     }
     return newEvent;
 }
@@ -75,8 +125,10 @@ int GetImportView(WINDOW *win, EventDictionary *storage)
         while (getline(file, line))
         {
             Event *event = parseLine(line);
-            if (event == nullptr)
+            if (event == nullptr) {
+                // wprintw(sWin, "%s", line.c_str());
                 continue;
+            }
             if (event->getRepeat() == Event::Repeat::None)
             {
                 storage->addEvent(event);

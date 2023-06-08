@@ -59,32 +59,20 @@ NormalEvent::NormalEvent(const Event &event, const string &location, Datetime st
 NormalEvent::NormalEvent(const string &title, const string &description, Repeat repeat, const string &location, const Datetime &start, const Datetime &end)
     : Event(title, description, repeat), m_Location(location), m_Start(start), m_End(end){};
 
-NormalEvent::NormalEvent(const string &title, const string &description, Repeat repeat, const string &formatted)
-    : Event(title, description, repeat)
-{
-    std::istringstream iss(formatted);
-    std::string token;
-
-    std::getline(iss, token, ',');
-    string location = token;
-
-    std::getline(iss, token, ',');
-    string startDateFormatted = token;
-    Datetime startTime(startDateFormatted);
-
-    std::getline(iss, token, ',');
-    string endDateFormatted = token;
-    Datetime endTime(endDateFormatted);
-
-    m_Location = location;
-    m_Start = startTime;
-    m_End = endTime;
-}
-
 // NormalEvent::NormalEvent(const NormalEvent & event)
 bool NormalEvent::insideInterval(const Datetime &start, const Datetime &end) const
 {
+    // Event is contained within given the interval
     if (m_Start >= start && m_End <= end)
+        return true;
+    // Event is containing the given interval
+    if (start >= m_Start && end <= m_End)
+        return true;
+    // Event ending is inside the given interval
+    if (m_End >= start && m_End <= end)
+        return true;
+    // Event is starting inside the given interval
+    if (m_Start >= start && m_Start <= end)
         return true;
     return false;
 }
@@ -180,36 +168,6 @@ void NormalEvent::changeTime(const Interval &intl)
 Task::Task(const string &title, const string &description, Repeat repeat, const Datetime &start, const Datetime &end, bool finished)
     : Event(title, description, repeat), m_Start(start), m_End(end), m_Finished(finished){};
 
-Task::Task(const string &title, const string &description, Repeat repeat, const string &formatted)
-    : Event(title, description, repeat)
-{
-    std::istringstream iss(formatted);
-    std::string token;
-
-    std::getline(iss, token, ',');
-    string startDateFormatted = token;
-    Datetime startTime(startDateFormatted);
-
-    std::getline(iss, token, ',');
-    string endDateFormatted = token;
-    Datetime endTime(endDateFormatted);
-
-    std::getline(iss, token, ',');
-    string strDone = token;
-    bool finished = false;
-    if (!strDone.empty() && strDone[0] == '0')
-    {
-        finished = false;
-    }
-    if (!strDone.empty() && strDone[0] == '1')
-    {
-        finished = true;
-    }
-
-    m_Start = startTime;
-    m_End = endTime;
-    m_Finished = finished;
-}
 void Task::renderInHours(WINDOW *win, bool colored) const
 {
     // str.append()
@@ -259,7 +217,17 @@ Event *Task::makeCopy() const
 
 bool Task::insideInterval(const Datetime &start, const Datetime &end) const
 {
+    // Event is contained within given the interval
     if (m_Start >= start && m_End <= end)
+        return true;
+    // Event is containing the given interval
+    if (start >= m_Start && end <= m_End)
+        return true;
+    // Event ending is inside the given interval
+    if (m_End >= start && m_End <= end)
+        return true;
+    // Event is starting inside the given interval
+    if (m_Start >= start && m_Start <= end)
         return true;
     return false;
 }
@@ -332,18 +300,6 @@ void Task::changeTime(const Interval &intl)
 
 Deadline::Deadline(const string &title, const string &description, Repeat repeat, const Datetime &end)
     : Event(title, description, repeat), m_End(end){};
-
-Deadline::Deadline(const string &title, const string &description, Repeat repeat, const string &formatted)
-    : Event(title, description, repeat)
-{
-    std::istringstream iss(formatted);
-    std::string token;
-    std::getline(iss, token, ',');
-    string endDateFormatted = token;
-    Datetime endTime(endDateFormatted);
-
-    m_End = endTime;
-}
 
 Event *Deadline::makeCopy() const
 {

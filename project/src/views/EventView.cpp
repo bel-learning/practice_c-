@@ -97,7 +97,7 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         }
         string duration = promptInput(bWindow, "Duration (in mins)*:");
         while(!isValidMinutes(duration)) {
-            duration = promptInput(bWindow, "Duration (in mins), must be higher than 0:");
+            duration = promptInput(bWindow, "Duration (in mins), must be higher than 0 and lower than 1 day(1440):");
         }   
         if (duration == "exit")
         {
@@ -123,7 +123,7 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         }
         string duration = promptInput(bWindow, "Duration (in mins)*:");
         while(!isValidMinutes(duration)) {
-            duration = promptInput(bWindow, "Duration (in mins), must be higher than 0:");
+            duration = promptInput(bWindow, "Duration (in mins), must be higher than 0  and lower than 1 day(1440):");
         }   
         if (duration == "exit")
         {
@@ -190,9 +190,11 @@ void renderIntervals(WINDOW * win, const vector<Interval> &intls, int selected) 
     {
         stringstream iss;
         iss << setw(2) << setfill('0') << intls[i].start.hour << ":"; // Set flags before first value
-        iss << setw(2) << setfill('0') << intls[i].start.minute;      // Set flags before second value
-        iss << "-" << setw(2) << setfill('0') << intls[i].end.hour << ":";   // Set flags before third value
-        iss << setw(2) << setfill('0') << intls[i].end.minute;        // Set flags before fourth value
+        iss << setw(2) << setfill('0') << intls[i].start.minute << " ";
+        iss << intls[i].start.day << " " << getMonthName(intls[i].start.month);      // Set flags before second value
+        iss << " - " << setw(2) << setfill('0') << intls[i].end.hour << ":";   // Set flags before third value
+        iss << setw(2) << setfill('0') << intls[i].end.minute << " ";         // Set flags before fourth value
+        iss << intls[i].end.day << " " << getMonthName(intls[i].end.month);      // Set flags before second value
 
     
         drawButton(iss.str(), i + 2, 2, selected == static_cast<int>(i), win);
@@ -330,21 +332,6 @@ int GetEventView(WINDOW *win, EventDictionary *storage, const Event *event)
     delwin(rWin);
 
     return 0;
-}
-
-bool intervalsOverlapping(const Interval &a, const Interval &b)
-{
-    // Check if the intervals overlap by comparing their start and end values
-    if (a.start <= b.end && b.start <= a.end)
-    {
-        // Intervals overlap
-        return true;
-    }
-    else
-    {
-        // Intervals do not overlap
-        return false;
-    }
 }
 
 vector<Interval> findFreeIntervals(const Event *event, EventDictionary *storage)

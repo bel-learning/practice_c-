@@ -20,7 +20,7 @@ bool isValidDescription(const string & input) {
 
 bool isValidRepeat(const string & input) {
     if(input != "yearly" && input != "monthly" && input != "weekly" && input != "biweekly" && input != "daily"
-    && input != "exit" && input != "")
+    && input != "exit" && input != "" && input != "none")
         return false;
     return true;
 }
@@ -136,7 +136,11 @@ bool isValidMinutes(const std::string & input) {
     }
     if(stoi(input) == 0)
         return false;
-    
+    if(input.size() > 5)
+        return false;
+    if(stoi(input) > 1440) {
+        return false;
+    }
     return true;
 }
 bool isValidBool(const std::string & input) {
@@ -145,4 +149,8 @@ bool isValidBool(const std::string & input) {
     if(input[0] != '1' && input[0] != '0')
         return false;
     return true;
+}
+
+bool isValidLocation(const std::string & input) {
+    return input.size() < 40;
 }

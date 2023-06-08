@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <curses.h>
 #include <iostream>
 #include <iomanip>
 #include <chrono>
@@ -24,8 +25,6 @@ int main()
     // Controls App main stage
     MainState state;
 
-    // int row = 20;
-    // int col = 80;
 
     // Initializing NCURSES
     WINDOW *mainWin = nullptr;
@@ -35,7 +34,8 @@ int main()
         exit(EXIT_FAILURE);
     }
     noecho();
-    keypad(mainWin, TRUE);
+    cbreak();
+    keypad(stdscr, TRUE);
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
@@ -135,10 +135,8 @@ int main()
         if (choice == Menu::SQuit)
             break;
     }
-    // writeToDebug(res);
     clear();
     delwin(mainWin);
     endwin();
-
     return res;
 }
