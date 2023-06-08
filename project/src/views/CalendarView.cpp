@@ -8,7 +8,6 @@
  * @brief Implementation of functions in CalendarView with its helper functions
  */
 
-
 int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
 {
     Datetime showDate = getCurrentDateTime();
@@ -23,7 +22,7 @@ int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
         wrefresh(rWindow);
         wclear(lWindow);
         wclear(rWindow);
-
+        // If on month change
         if (selected == 0)
         {
             if (ch == KEY_LEFT || ch == KEY_SLEFT || ch == 260)
@@ -46,6 +45,7 @@ int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
                 selected = monthDay;
             }
         }
+        // If not on month change, (on the days)
         else if (selected != 0)
         {
             switch (ch)
@@ -104,7 +104,7 @@ int triggerMonthlyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
 
     for (Event *event : events)
         delete event;
- 
+
     return 1;
 }
 
@@ -123,7 +123,7 @@ int triggerWeeklyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
         wrefresh(rWindow);
         wclear(lWindow);
         wclear(rWindow);
-
+        // If on week change
         if (selected == 0)
         {
             if (ch == KEY_LEFT || ch == KEY_SLEFT || ch == 260)
@@ -135,7 +135,7 @@ int triggerWeeklyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
                 showDate = startOfNextWeek(showDate);
             }
         }
-
+        // If on day change
         if (ch == KEY_DOWN)
         {
             selected++;
@@ -184,7 +184,7 @@ int triggerWeeklyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
     }
     for (Event *event : events)
         delete event;
-  
+
     return 1;
 }
 int triggerDailyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
@@ -241,7 +241,7 @@ int triggerDailyView(WINDOW *lWindow, WINDOW *rWindow, Calendar *cal)
     }
     for (Event *event : events)
         delete event;
-   
+
     return 1;
 }
 
@@ -254,7 +254,7 @@ int GetCalendarView(int type, WINDOW *main, Calendar *cal)
     // Dividing the screen in half. One for calendar, 1 for days
     WINDOW *lWindow = subwin(main, MAX_ROWS - 3, MAX_COLS / 2 - 2, 1, 1);
     WINDOW *rWindow = subwin(main, MAX_ROWS - 3, MAX_COLS / 2 - 4, 1, MAX_COLS / 2 + 2);
-    int state = 0; 
+    int state = 0;
     if (type == Menu::SMonthlyCalendar)
     {
         state = triggerMonthlyView(lWindow, rWindow, cal);

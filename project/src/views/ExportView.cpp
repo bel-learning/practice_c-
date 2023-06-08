@@ -24,11 +24,12 @@ int GetExportView(WINDOW *win, EventDictionary *storage)
     refresh();
 
     string filename = promptInput(sWin, "<Filename>.cal (It'll be in the examples directory): ");
-    if(filename == "exit") {
+    if (filename == "exit")
+    {
         wclear(sWin);
         wclear(win);
         delwin(sWin);
-        return 0;
+        return 1;
     }
     mvwprintw(win, MAX_ROWS / 2 - 1, MAX_COLS / 2 - 6, "%s", filename.c_str());
     wrefresh(win);
@@ -62,5 +63,5 @@ int GetExportView(WINDOW *win, EventDictionary *storage)
     wclear(win);
     delwin(sWin);
 
-    return 1;
+    return 0;
 }

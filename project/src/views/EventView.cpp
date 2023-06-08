@@ -1,8 +1,8 @@
 #include <ncurses.h>
 #include <string>
-#include<iomanip>
-#include<sstream>
-#include<cctype>
+#include <iomanip>
+#include <sstream>
+#include <cctype>
 #include "../event.h"
 #include "../util.h"
 #include "../calendar.h"
@@ -31,11 +31,11 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     WINDOW *bWindow = subwin(main, MAX_ROWS - 4, MAX_COLS - 4, 1, 2);
     refresh();
 
-
     string type = promptInput(bWindow, "Type of event (deadline, task, event)*:");
-    while(!isValidType(type)) {
+    while (!isValidType(type))
+    {
         type = promptInput(bWindow, "Type of event (deadline, task, event) again:");
-    }   
+    }
     if (type == "exit")
     {
         clear();
@@ -43,9 +43,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         return 0;
     }
     string title = promptInput(bWindow, "The title*:");
-    while(!isValidTitle(title)) {
+    while (!isValidTitle(title))
+    {
         title = promptInput(bWindow, "The title (must be higher than 0):");
-    }   
+    }
     if (title == "exit")
     {
         clear();
@@ -54,9 +55,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         return 0;
     }
     string description = promptInput(bWindow, "Description:");
-    while(!isValidDescription(description)) {
+    while (!isValidDescription(description))
+    {
         description = promptInput(bWindow, "The description (must be lower than 80):");
-    }   
+    }
     if (description == "exit")
     {
         clear();
@@ -65,9 +67,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     }
 
     string repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly, or none)*:");
-    while(!isValidRepeat(repeatFormatted)) {
+    while (!isValidRepeat(repeatFormatted))
+    {
         repeatFormatted = promptInput(bWindow, "Repeat (daily, weekly, biweekly, monthly, yearly, or none) again:");
-    }   
+    }
     if (repeatFormatted == "exit")
     {
         clear();
@@ -86,9 +89,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
             return 0;
         }
         string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
-        while(!isValidDate(timeStart)) {
+        while (!isValidDate(timeStart))
+        {
             timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
-        }   
+        }
         if (timeStart == "exit")
         {
             clear();
@@ -96,9 +100,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
             return 0;
         }
         string duration = promptInput(bWindow, "Duration (in mins)*:");
-        while(!isValidMinutes(duration)) {
+        while (!isValidMinutes(duration))
+        {
             duration = promptInput(bWindow, "Duration (in mins), must be higher than 0 and lower than 1 day(1440):");
-        }   
+        }
         if (duration == "exit")
         {
             clear();
@@ -112,9 +117,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     if (type == "task")
     {
         string timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
-        while(!isValidDate(timeStart)) {
+        while (!isValidDate(timeStart))
+        {
             timeStart = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
-        }   
+        }
         if (timeStart == "exit")
         {
             clear();
@@ -122,9 +128,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
             return 0;
         }
         string duration = promptInput(bWindow, "Duration (in mins)*:");
-        while(!isValidMinutes(duration)) {
+        while (!isValidMinutes(duration))
+        {
             duration = promptInput(bWindow, "Duration (in mins), must be higher than 0  and lower than 1 day(1440):");
-        }   
+        }
         if (duration == "exit")
         {
             clear();
@@ -133,7 +140,8 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         }
 
         string finished = promptInput(bWindow, "Finished or not (1 or 0)*:");
-        while(!isValidBool(finished)) {
+        while (!isValidBool(finished))
+        {
             finished = promptInput(bWindow, "Finished or not (1 or 0)*:");
         }
         if (finished == "exit")
@@ -149,9 +157,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     if (type == "deadline")
     {
         string timeEnd = promptInput(bWindow, "End time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm):");
-        while(!isValidDate(timeEnd)) {
+        while (!isValidDate(timeEnd))
+        {
             timeEnd = promptInput(bWindow, "Start time (YYYY-MM-DD-hh-mm), (MM-DD-hh-mm), (DD-hh-mm), (hh-mm)*:");
-        }   
+        }
         if (timeEnd == "exit")
         {
             clear();
@@ -160,17 +169,26 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
         }
         event = new Deadline(title, description, repeat, timeEnd);
     }
-    if(event == nullptr) {
+    if (event == nullptr)
+    {
         wclear(bWindow);
         delwin(bWindow);
         return 2;
     }
-    else {
-        if (repeat != Event::Repeat::None)
-            storage->addRepeatEvent(event);
-        else
-            storage->addEvent(event);
-    } 
+    else
+    {
+        if (storage->duplicateExists(event)) {
+            delete event;
+            event = nullptr;
+        }
+        else {
+            if (repeat != Event::Repeat::None)
+                storage->addRepeatEvent(event);
+            else
+                storage->addEvent(event);
+        }
+        
+    }
     wclear(bWindow);
     delwin(bWindow);
     return 1;
@@ -185,18 +203,18 @@ void drawButton(const std::string &label, int y, int x, bool selected, WINDOW *w
     wrefresh(win);
 }
 
-void renderIntervals(WINDOW * win, const vector<Interval> &intls, int selected) {
+void renderIntervals(WINDOW *win, const vector<Interval> &intls, int selected)
+{
     for (size_t i = 0; i < intls.size(); i++)
     {
         stringstream iss;
         iss << setw(2) << setfill('0') << intls[i].start.hour << ":"; // Set flags before first value
         iss << setw(2) << setfill('0') << intls[i].start.minute << " ";
-        iss << intls[i].start.day << " " << getMonthName(intls[i].start.month);      // Set flags before second value
-        iss << " - " << setw(2) << setfill('0') << intls[i].end.hour << ":";   // Set flags before third value
-        iss << setw(2) << setfill('0') << intls[i].end.minute << " ";         // Set flags before fourth value
-        iss << intls[i].end.day << " " << getMonthName(intls[i].end.month);      // Set flags before second value
+        iss << intls[i].start.day << " " << getMonthName(intls[i].start.month); // Set flags before second value
+        iss << " - " << setw(2) << setfill('0') << intls[i].end.hour << ":";    // Set flags before third value
+        iss << setw(2) << setfill('0') << intls[i].end.minute << " ";           // Set flags before fourth value
+        iss << intls[i].end.day << " " << getMonthName(intls[i].end.month);     // Set flags before second value
 
-    
         drawButton(iss.str(), i + 2, 2, selected == static_cast<int>(i), win);
     }
 }

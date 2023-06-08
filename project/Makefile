@@ -16,7 +16,7 @@ OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 # Specify the target executable
 TARGET = baljibil
 
-all: compile
+all: test compile
 
 compile: $(BUILD_DIR) $(TARGET)
 
@@ -24,7 +24,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 	
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ -lncurses --disable-leaks
+	$(CC) $(CFLAGS) $^ -o $@ -lncurses 
 
 $(BUILD_DIR):
 	mkdir -p $(dir $(OBJS))
@@ -33,7 +33,7 @@ test:
 	$(CC) $(CFLAGS) ./examples/unit.test.cpp ./src/datetime.cpp ./src/util.cpp -lncurses -o test
 	./test
 	rm -rf test
-	echo "Test success"
+	@echo "\033[32mTest success\033[0m"
 run:
 	./$(TARGET)
 
@@ -42,7 +42,6 @@ clean:
 	rm -rf doc/
 doc:
 	doxygen Doxyfile 
-	mv doc/html/* doc/
 	
 valgrind:
 	valgrind -s --leak-check=full --show-leak-kinds=all ./baljibil

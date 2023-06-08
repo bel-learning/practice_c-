@@ -25,7 +25,6 @@ int main()
     // Controls App main stage
     MainState state;
 
-
     // Initializing NCURSES
     WINDOW *mainWin = nullptr;
     if ((mainWin = initscr()) == NULL)
@@ -49,7 +48,7 @@ int main()
     // Main APP LOOP
     while (running)
     {
-        
+
         // MAIN APP STATES
         switch (state)
         {
@@ -90,7 +89,7 @@ int main()
                 cal = new WeeklyCalendar();
             if (choice == Menu::SDailyCalendar)
                 cal = new DailyCalendar();
-            //
+            // Linking calendar to main storage
             cal->referDictionary(&storage);
             res = GetCalendarView(choice, mainWin, cal);
             state = MainState::MenuView;

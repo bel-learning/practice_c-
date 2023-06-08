@@ -103,6 +103,12 @@ public:
      * @return A constant reference to the vector of repeatable Event pointers.
      */
     const vector<Event *> &getRepeatEvents() const;
+    /**
+     * @brief Find whether duplicate exists or not.
+     *
+     * @return A boolean indicating duplicate exists or not.
+     */
+    bool duplicateExists(const Event * event) const;
 
 private:
     // std::unordered_map<std::string, Event *> names;

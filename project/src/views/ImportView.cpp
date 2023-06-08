@@ -17,8 +17,9 @@ Event *parseLine(const string &formatted)
 {
     Event *newEvent = nullptr;
     int occur = 0;
-    for(const auto & c : formatted) {
-        if(c == ',')
+    for (const auto &c : formatted)
+    {
+        if (c == ',')
             occur++;
     }
 
@@ -26,37 +27,37 @@ Event *parseLine(const string &formatted)
     std::string token;
     std::getline(iss, token, ',');
     string type = token;
-    if(!isValidType(type))
+    if (!isValidType(type))
         return nullptr;
     std::getline(iss, token, ',');
     string title = token;
-    if(!isValidTitle(title))
+    if (!isValidTitle(title))
         return nullptr;
     std::getline(iss, token, ',');
     string description = token;
-    if(!isValidDescription(description))
+    if (!isValidDescription(description))
         return nullptr;
     std::getline(iss, token, ',');
     string repeatFormatted = token;
-    if(!isValidRepeat(repeatFormatted))
+    if (!isValidRepeat(repeatFormatted))
         return nullptr;
     Event::Repeat repeat = stringToRepeat(repeatFormatted);
-    
+
     if (type == "event")
     {
         std::getline(iss, token, ',');
         string location = token;
-        if(!isValidLocation(location))
+        if (!isValidLocation(location))
             return nullptr;
         std::getline(iss, token, ',');
         string startDateFormatted = token;
-        if(!isValidDate(startDateFormatted))
+        if (!isValidDate(startDateFormatted))
             return nullptr;
         Datetime startTime(startDateFormatted);
 
         std::getline(iss, token, ',');
         string endDateFormatted = token;
-        if(!isValidDate(endDateFormatted))
+        if (!isValidDate(endDateFormatted))
             return nullptr;
         Datetime endTime(endDateFormatted);
 
@@ -66,19 +67,19 @@ Event *parseLine(const string &formatted)
     {
         std::getline(iss, token, ',');
         string startDateFormatted = token;
-        if(!isValidDate(startDateFormatted))
+        if (!isValidDate(startDateFormatted))
             return nullptr;
         Datetime startTime(startDateFormatted);
 
         std::getline(iss, token, ',');
         string endDateFormatted = token;
-        if(!isValidDate(endDateFormatted))
+        if (!isValidDate(endDateFormatted))
             return nullptr;
         Datetime endTime(endDateFormatted);
 
         std::getline(iss, token, ',');
         string strDone = token;
-        if(!isValidBool(strDone))
+        if (!isValidBool(strDone))
             return nullptr;
         bool finished = strDone[0] == '0' ? false : true;
         newEvent = new Task(title, description, repeat, startTime, endTime, finished);
@@ -87,7 +88,7 @@ Event *parseLine(const string &formatted)
     {
         std::getline(iss, token, ',');
         string endDateFormatted = token;
-        if(!isValidDate(endDateFormatted))
+        if (!isValidDate(endDateFormatted))
             return nullptr;
         Datetime endTime(endDateFormatted);
 
@@ -108,13 +109,14 @@ int GetImportView(WINDOW *win, EventDictionary *storage)
     refresh();
 
     string filename = promptInput(sWin, "<Filename>.cal (File to import(must be in examples/ directory)):");
-    if(filename == "exit") {
+    if (filename == "exit")
+    {
         wclear(sWin);
         wclear(win);
         delwin(sWin);
-        return 0;
+        return 1;
     }
-    mvwprintw(win, MAX_ROWS / 2 - 1, MAX_COLS / 2 - 6,"%s", filename.c_str());
+    mvwprintw(win, MAX_ROWS / 2 - 1, MAX_COLS / 2 - 6, "%s", filename.c_str());
     wrefresh(win);
     filename = "./examples/" + filename;
     ifstream file(filename);
@@ -125,18 +127,17 @@ int GetImportView(WINDOW *win, EventDictionary *storage)
         while (getline(file, line))
         {
             Event *event = parseLine(line);
-            if (event == nullptr) {
-                // wprintw(sWin, "%s", line.c_str());
+            if (event == nullptr)
+                continue;
+            if (storage->duplicateExists(event)) {
+                delete event;
+                event = nullptr;
                 continue;
             }
             if (event->getRepeat() == Event::Repeat::None)
-            {
                 storage->addEvent(event);
-            }
             else
-            {
                 storage->addRepeatEvent(event);
-            }
         }
 
         mvwprintw(win, MAX_ROWS / 2, MAX_COLS / 2 - 6, "Success");
@@ -155,5 +156,5 @@ int GetImportView(WINDOW *win, EventDictionary *storage)
     wclear(win);
     delwin(sWin);
 
-    return 1;
+    return 0;
 }

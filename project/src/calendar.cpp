@@ -205,7 +205,6 @@ void WeeklyCalendar::displayEvents(WINDOW *win, const vector<Event *> &events, b
     mvwprintw(win, 2, middle - 6, "Events\n\n");
     wattroff(win, A_BOLD);
 
-
     if (events.size() == 0)
     {
         wprintw(win, "No events\n");
@@ -369,7 +368,7 @@ void MonthlyCalendar::display(WINDOW *win, const Datetime &date, int selected) c
         {
             wattron(win, COLOR_PAIR(3));
         }
-        if(MAX_ROWS > row + paddingTop)
+        if (MAX_ROWS > row + paddingTop)
             mvwprintw(win, row + paddingTop, col + paddingLeft, "%3d", i);
         wattroff(win, COLOR_PAIR(3));
         col += 4;
@@ -600,3 +599,14 @@ void EventDictionary::changeEventTime(const Event *event, const Interval &intl)
         }
     }
 }
+bool EventDictionary::duplicateExists(const Event * event) const {
+    for(const Event * e : m_Events) {
+        if(e->toFile().str() == event->toFile().str())
+            return true;
+    }
+    for(const Event * e : m_RepeatEvents) {
+        if(e->toFile().str() == event->toFile().str())
+            return true;
+    }
+    return false;
+};

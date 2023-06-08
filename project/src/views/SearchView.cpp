@@ -29,26 +29,59 @@ bool startsWith(const string &str, const string &prefix)
     return true;
 }
 
+/**
+ * \brief Searches for events in the given EventDictionary that have titles starting with the specified needle.
+ *
+ * This function iterates through the events stored in the EventDictionary and its repeat events, and checks if the
+ * title of each event starts with the specified needle string. It keeps track of the number of matched events and
+ * limits the number of found events to a maximum of 15. For each matched event, a copy is created and added to the
+ * vector of foundEvents.
+ *
+ * \param storage Pointer to the EventDictionary object containing the events to search through.
+ * \param needle The string used as the search criterion. Only events with titles starting with this string are considered.
+ *
+ * \return A vector of pointers to Event objects that match the search criterion.
+ */
 vector<Event *> match(EventDictionary *storage, const string &needle)
 {
+    int count = 0;
     vector<Event *> foundEvents;
     for (const Event *event : storage->getEvents())
     {
-        if (startsWith(event->getTitle(), needle))
+        // Limiting events within 15
+        if (startsWith(event->getTitle(), needle) && count < 15)
         {
             foundEvents.push_back(event->makeCopy());
+            count++;
         }
     }
     for (const Event *event : storage->getRepeatEvents())
     {
-        if (startsWith(event->getTitle(), needle))
+        // Limiting events within 15
+        if (startsWith(event->getTitle(), needle) && count < 15)
         {
             foundEvents.push_back(event->makeCopy());
+            count++;
         }
     }
     return foundEvents;
 }
 
+/**
+ * \brief Performs a search for events in the given EventDictionary.
+ *
+ * This function allows the user to search for events by typing a search query in a window. The search is performed
+ * by matching the input against event titles using the match() function. The user can navigate through the search
+ * results and select an event to view its details. The function uses the ncurses library for displaying the user
+ * interface.
+ *
+ * \param win Pointer to the ncurses window where the search interface is displayed.
+ * \param storage Pointer to the EventDictionary object containing the events to search through.
+ *
+ * \return An integer representing the state of the program after the search:
+ *         - 0: The search operation completed successfully.
+ *         - Any other value: An error or a specific state as defined by the program.
+ */
 int search(WINDOW *win, EventDictionary *storage)
 {
     int COLS = getmaxx(win);
@@ -75,7 +108,7 @@ int search(WINDOW *win, EventDictionary *storage)
         case KEY_BACKSPACE:
         case KEY_DC:
         case 127:
-            if (!input.empty() && selected == 0)
+            if (!input.empty() && selected == 0 && input.size() < 80)
                 input.pop_back();
             break;
         case KEY_ENTER:

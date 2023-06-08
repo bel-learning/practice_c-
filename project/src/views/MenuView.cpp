@@ -9,7 +9,7 @@ using namespace std;
  *
  * @brief Implementation of GetMenuView function and its utility functions
  */
-
+// Draws button with label on given y,x.
 void drawButton(int y, int x, const std::string &label, bool selected, WINDOW *win)
 {
     if (selected)
@@ -20,7 +20,7 @@ void drawButton(int y, int x, const std::string &label, bool selected, WINDOW *w
     mvwprintw(win, y, x, "[%s]", label.c_str());
     wattroff(win, A_REVERSE); // Turn off highlighting
 }
-
+// Initializes the menu and brings interactivity
 int GetMenuView(WINDOW *main, Calendar *cal)
 {
     int rows, cols;
@@ -69,32 +69,32 @@ int GetMenuView(WINDOW *main, Calendar *cal)
 
         switch (ch)
         {
-            case KEY_UP:
-            case 2965:
-                selectedButton--;
-                if (selectedButton < 0)
-                {
-                    selectedButton = 7;
-                }
-                break;
-            case KEY_DOWN:
-            case 2966:
-                selectedButton++;
-                if (selectedButton > 7)
-                {
-                    selectedButton = 0;
-                }
-                break;
+        case KEY_UP:
+        case 2965:
+            selectedButton--;
+            if (selectedButton < 0)
+            {
+                selectedButton = 7;
+            }
+            break;
+        case KEY_DOWN:
+        case 2966:
+            selectedButton++;
+            if (selectedButton > 7)
+            {
+                selectedButton = 0;
+            }
+            break;
 
-            case KEY_ENTER:
-            case 10: // Enter key
-                wrefresh(subWindow);
-                wclear(subWindow);
-                delwin(subWindow);
+        case KEY_ENTER:
+        case 10: // Enter key
+            wrefresh(subWindow);
+            wclear(subWindow);
+            delwin(subWindow);
 
-                return selectedButton;
-            case 'q':
-                break;
+            return selectedButton;
+        case 'q':
+            break;
         }
     }
     wclear(subWindow);

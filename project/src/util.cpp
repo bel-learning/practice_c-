@@ -33,7 +33,7 @@ string getInput(WINDOW *win)
     {
         if (ch == KEY_BACKSPACE || ch == KEY_DC || ch == 127)
         {
-            if (!input.empty())
+            if (!input.empty() && input.size() < 80)
                 input.pop_back();
         }
         else if (ch == KEY_ENTER || ch == '\n')
@@ -97,7 +97,7 @@ int dayIndexInWeek(const Datetime &time)
 }
 std::string getMonthName(int monthNum)
 {
-    if(monthNum > 12 || monthNum < 1)
+    if (monthNum > 12 || monthNum < 1)
         return "";
     std::string months[] = {"Jan", "Feb", "Mar",
                             "Apr", "May", "Jun",

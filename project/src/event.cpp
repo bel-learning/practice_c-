@@ -42,11 +42,7 @@ const Event::Repeat &Event::getRepeat() const
 
 bool operator==(const Event &event1, const Event &event2)
 {
-    if (event1.m_Title != event2.m_Title)
-        return false;
-    if (event1.m_Description != event2.m_Description)
-        return false;
-    if (event1.m_Repeat != event2.m_Repeat)
+    if (event1.toFile().str() != event2.toFile().str())
         return false;
     return true;
 }
