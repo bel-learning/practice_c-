@@ -57,7 +57,7 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     string description = promptInput(bWindow, "Description:");
     while (!isValidDescription(description))
     {
-        description = promptInput(bWindow, "The description (must be lower than 80):");
+        description = promptInput(bWindow, "The description (must be lower than 40):");
     }
     if (description == "exit")
     {
@@ -82,6 +82,10 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     if (type == "event" || type == "")
     {
         string location = promptInput(bWindow, "Location:");
+        while (!isValidLocation(location))
+        {
+            location = promptInput(bWindow, "Location: (lower than 40):");
+        }
         if (location == "exit")
         {
             clear();
@@ -177,17 +181,18 @@ int AddEventView(WINDOW *main, Calendar *cal, EventDictionary *storage)
     }
     else
     {
-        if (storage->duplicateExists(event)) {
+        if (storage->duplicateExists(event))
+        {
             delete event;
             event = nullptr;
         }
-        else {
+        else
+        {
             if (repeat != Event::Repeat::None)
                 storage->addRepeatEvent(event);
             else
                 storage->addEvent(event);
         }
-        
     }
     wclear(bWindow);
     delwin(bWindow);

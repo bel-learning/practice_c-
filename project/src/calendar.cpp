@@ -445,7 +445,7 @@ const vector<Event *> MonthlyCalendar::getEvents(const Datetime &start, bool sho
             }
             Event *newEvent = e->findNextRepeatable();
             Event *toDelete = newEvent;
-            while (newEvent->getCompareDate() < endDate)
+            while (newEvent->getCompareDate() <= endDate)
             {
                 if (newEvent->insideInterval(startDate, endDate))
                 {
@@ -465,7 +465,7 @@ const vector<Event *> MonthlyCalendar::getEvents(const Datetime &start, bool sho
             }
             Event *newEvent = e->findPreviousRepeatable();
             Event *toDelete = newEvent;
-            while (newEvent->getCompareDate() > startDate)
+            while (newEvent->getCompareDate() >= startDate)
             {
                 if (newEvent->insideInterval(startDate, endDate))
                 {
@@ -599,13 +599,16 @@ void EventDictionary::changeEventTime(const Event *event, const Interval &intl)
         }
     }
 }
-bool EventDictionary::duplicateExists(const Event * event) const {
-    for(const Event * e : m_Events) {
-        if(e->toFile().str() == event->toFile().str())
+bool EventDictionary::duplicateExists(const Event *event) const
+{
+    for (const Event *e : m_Events)
+    {
+        if (e->toFile().str() == event->toFile().str())
             return true;
     }
-    for(const Event * e : m_RepeatEvents) {
-        if(e->toFile().str() == event->toFile().str())
+    for (const Event *e : m_RepeatEvents)
+    {
+        if (e->toFile().str() == event->toFile().str())
             return true;
     }
     return false;

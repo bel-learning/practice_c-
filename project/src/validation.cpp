@@ -20,11 +20,11 @@ bool isValidType(const string &input)
 
 bool isValidTitle(const string &input)
 {
-    return input.size() > 0 && input.size() < 80;
+    return input.size() > 0 && input.size() < 40;
 }
 bool isValidDescription(const string &input)
 {
-    return input.size() < 80;
+    return input.size() < 40;
 }
 
 bool isValidRepeat(const string &input)
